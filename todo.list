@@ -1,0 +1,4 @@
+- Gérer la superposition d'images :
+	adoucir les bords pour crée un effet de continuité
+	
+- Adapter le seuil à la luminosité ambiante

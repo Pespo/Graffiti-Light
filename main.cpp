@@ -1,0 +1,261 @@
+#include "functions.hpp"
+#include <iostream>
+
+int main(int argc, char **argv) {
+	
+	const unsigned int width = 1280;
+	const unsigned int height = 720;
+	unsigned char *image = new unsigned char[width * height * 3];
+	unsigned char *mask = new unsigned char[width * height * 4];
+	unsigned char *master = new unsigned char[width * height * 4];
+	unsigned char *final = new unsigned char[width * height * 3];
+
+	resetMask(master, width, height);
+
+//	char *path = "images4/12.pbm";
+//	char *copyPath = "test.pbm";
+//	char *finalPath = "images4/1.pbm";
+	
+	char *path[] = {"images4/1.pbm",
+					"images4/2.pbm",
+					"images4/3.pbm",
+					"images4/4.pbm",
+					"images4/5.pbm",
+					"images4/6.pbm",
+					"images4/7.pbm",
+					"images4/8.pbm",
+					"images4/9.pbm",
+					"images4/10.pbm",
+					"images4/11.pbm",
+					"images4/12.pbm",
+					"images4/13.pbm",
+					"images4/14.pbm",
+					"images4/15.pbm",
+					"images4/16.pbm",
+					"images4/17.pbm",
+					"images4/18.pbm",
+					"images4/19.pbm",
+					"images4/20.pbm",
+					"images4/21.pbm",
+					"images4/22.pbm",
+					"images4/23.pbm",
+					"images4/24.pbm",
+					"images4/25.pbm",
+					"images4/26.pbm",
+					"images4/27.pbm",
+					"images4/28.pbm",
+					"images4/29.pbm",
+					"images4/30.pbm",
+					"images4/31.pbm",
+					"images4/32.pbm",
+					"images4/33.pbm",
+					"images4/34.pbm",
+					"images4/35.pbm",
+					"images4/36.pbm",
+					"images4/37.pbm",
+					"images4/38.pbm",
+					"images4/39.pbm",
+					"images4/40.pbm",
+					"images4/41.pbm",
+					"images4/42.pbm",
+					"images4/43.pbm",
+					"images4/44.pbm",
+					"images4/45.pbm",
+					"images4/46.pbm",
+					"images4/47.pbm",
+					"images4/48.pbm",
+					"images4/49.pbm",
+					"images4/50.pbm",
+					"images4/51.pbm",
+					"images4/52.pbm",
+					"images4/53.pbm",
+					"images4/54.pbm",
+					"images4/55.pbm",
+					"images4/56.pbm",
+					"images4/57.pbm",
+					"images4/58.pbm",
+					"images4/59.pbm",
+					"images4/60.pbm",
+					"images4/61.pbm",
+					"images4/62.pbm",
+					"images4/63.pbm",
+					"images4/64.pbm",
+					"images4/65.pbm",
+					"images4/66.pbm",
+					"images4/67.pbm",
+					"images4/68.pbm",
+					"images4/69.pbm",
+					"images4/70.pbm",
+					"images4/71.pbm",
+					"images4/72.pbm",
+					"images4/73.pbm",
+					"images4/74.pbm",
+					"images4/75.pbm",
+					"images4/76.pbm",
+					"images4/77.pbm",
+					"images4/78.pbm",
+					"images4/79.pbm",
+					"images4/80.pbm",
+					"images4/81.pbm",
+					"images4/82.pbm",
+					"images4/83.pbm",
+					"images4/84.pbm",
+					"images4/85.pbm",
+					"images4/86.pbm",
+					"images4/87.pbm",
+					"images4/88.pbm",
+					"images4/89.pbm",
+					"images4/90.pbm"};/*,
+					"images4/91.pbm",
+					"images4/92.pbm",
+					"images4/93.pbm",
+					"images4/94.pbm",
+					"images4/95.pbm",
+					"images4/96.pbm",
+					"images4/97.pbm",
+					"images4/98.pbm",
+					"images4/99.pbm",
+					"images4/100.pbm",
+					"images4/101.pbm",
+					"images4/102.pbm",
+					"images4/103.pbm",
+					"images4/104.pbm",
+					"images4/105.pbm",
+					"images4/106.pbm"};*/
+	
+	char *copyPath[] = {"result/1.pbm",
+						"result/2.pbm",
+						"result/3.pbm",
+						"result/4.pbm",
+						"result/5.pbm",
+						"result/6.pbm",
+						"result/7.pbm",
+						"result/8.pbm",
+						"result/9.pbm",
+						"result/10.pbm",
+						"result/11.pbm",
+						"result/12.pbm",
+						"result/13.pbm",
+						"result/14.pbm",
+						"result/15.pbm",
+						"result/16.pbm",
+						"result/17.pbm",
+						"result/18.pbm",
+						"result/19.pbm",
+						"result/20.pbm",
+						"result/21.pbm",
+						"result/22.pbm",
+						"result/23.pbm",
+						"result/24.pbm",
+						"result/25.pbm",
+						"result/26.pbm",
+						"result/27.pbm",
+						"result/28.pbm",
+						"result/29.pbm",
+						"result/30.pbm",
+						"result/31.pbm",
+						"result/32.pbm",
+						"result/33.pbm",
+						"result/34.pbm",
+						"result/35.pbm",
+						"result/36.pbm",
+						"result/37.pbm",
+						"result/38.pbm",
+						"result/39.pbm",
+						"result/40.pbm",
+						"result/41.pbm",
+						"result/42.pbm",
+						"result/43.pbm",
+						"result/44.pbm",
+						"result/45.pbm",
+						"result/46.pbm",
+						"result/47.pbm",
+						"result/48.pbm",
+						"result/49.pbm",
+						"result/50.pbm",
+						"result/51.pbm",
+						"result/52.pbm",
+						"result/53.pbm",
+						"result/54.pbm",
+						"result/55.pbm",
+						"result/56.pbm",
+						"result/57.pbm",
+						"result/58.pbm",
+						"result/59.pbm",
+						"result/60.pbm",
+						"result/61.pbm",
+						"result/62.pbm",
+						"result/63.pbm",
+						"result/64.pbm",
+						"result/65.pbm",
+						"result/66.pbm",
+						"result/67.pbm",
+						"result/68.pbm",
+						"result/69.pbm",
+						"result/70.pbm",
+						"result/71.pbm",
+						"result/72.pbm",
+						"result/73.pbm",
+						"result/74.pbm",
+						"result/75.pbm",
+						"result/76.pbm",
+						"result/77.pbm",
+						"result/78.pbm",
+						"result/79.pbm",
+						"result/80.pbm",
+						"result/81.pbm",
+						"result/82.pbm",
+						"result/83.pbm",
+						"result/84.pbm",
+						"result/85.pbm",
+						"result/86.pbm",
+						"result/87.pbm",
+						"result/88.pbm",
+						"result/89.pbm",
+						"result/90.pbm"};/*,
+						"result/91.pbm",
+						"result/92.pbm",
+						"result/93.pbm",
+						"result/94.pbm",
+						"result/95.pbm",
+						"result/96.pbm",
+						"result/97.pbm",
+						"result/98.pbm",
+						"result/99.pbm",
+						"result/100.pbm",
+						"result/101.pbm",
+						"result/102.pbm",
+						"result/103.pbm",
+						"result/104.pbm",
+						"result/105.pbm",
+						"result/106.pbm"};*/
+
+/*	loadImage(path, image, width, height);
+	loadImage(finalPath, final, width, height);
+
+	resetMask(mask, width, height);
+	writeMask(image, mask, 500, width, height);
+	writeMaster(master, mask, width, height);
+	writeImage(final, master, width, height);
+
+	saveImage(copyPath, final, width, height);*/
+	
+for (unsigned int i = 30; i < 60; ++i) {
+	loadImage(path[i], image, width, height);
+	
+	resetMask(mask, width, height);
+	writeMask(image, mask, 2000, width, height);
+	writeMaster(master, mask, width, height);
+	writeImage(image, master, width, height);
+	
+	saveImage(copyPath[i], image, width, height);
+}
+
+	
+	delete [] image;
+	delete [] mask;
+	delete [] master;
+	delete [] final;
+	
+	return 0;
+}

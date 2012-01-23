@@ -1,6 +1,6 @@
-EXE = test
+EXE = GLight
 CC = g++
-LDFLAGS = 
+LDFLAGS = -I/usr/local/include/opencv -lopencv_highgui -lopencv_core -lopencv_imgproc
 CGFLAGS = -Wall -c -g
 
 all: $(EXE)

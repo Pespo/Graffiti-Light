@@ -1,7 +1,14 @@
 EXE = GLight
 CC = g++
-LDFLAGS = -I/usr/local/include/opencv -lopencv_highgui -lopencv_core -lopencv_imgproc
-CGFLAGS = -Wall -c -g
+MACHINE = $(shell uname -s)
+
+ifeq ($(MACHINE),Darwin)
+    LDFLAGS = -I/usr/local/include/opencv -lopencv_highgui -lopencv_core -lopencv_imgproc
+    CGFLAGS = -Wall -c -g
+else
+    LDFLAGS =
+    CGFLAGS =
+endif
 
 all: $(EXE)
 

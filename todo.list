@@ -1,3 +1,6 @@
+- Tester la captation avec une autre caméra
+(Pour vérifier la compatibilité OpenCV)
+
 - Gérer la superposition d'images :
 	adoucir les bords pour crée un effet de continuité
 	

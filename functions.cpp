@@ -1,5 +1,6 @@
-#include "functions.hpp"
-#include <iostream>
+
+    #include "stdafx.h"
+
 
 void resetMask(unsigned char *mask, unsigned int width, unsigned int height) {
 	for (unsigned int row = 0; row < height; ++row) {

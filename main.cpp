@@ -1,9 +1,6 @@
-#include "functions.hpp"
-#include "headers.hpp"
-#include <cassert>
-#include <iostream>
-#include <cstdio>
-#include <ctime>
+
+ #include "stdafx.h"
+
 
 const char * WINDOW_NAME = "Graffiti Light";
 int seuil = 2550;

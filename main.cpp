@@ -34,9 +34,9 @@ void setShaders();
 
 // constants
 const int SCREEN_WIDTH = 400;
-const int SCREEN_HEIGHT = 300;
-const int TEXTURE_WIDTH = 256;
-const int TEXTURE_HEIGHT = 256;
+const int SCREEN_HEIGHT = 400;
+const int TEXTURE_WIDTH = 100;
+const int TEXTURE_HEIGHT = 100;
 
 // global variables
 void *font = GLUT_BITMAP_8_BY_13;
@@ -229,15 +229,30 @@ void setShaders() {
 	glAttachShader(p,v);
     
 	glLinkProgram(p);
-	glUseProgram(p);
+	//glUseProgram(p);
+}
+
+void drawScene() {
+    glUseProgram(p);
+    glBegin(GL_TRIANGLES);
+    glColor4f(1, 0, 0, 1);
+    
+    //glNormal3f(0,0,1);
+    glVertex3f(0, 1, 0);
+    glVertex3f(1, -1, 0);
+    glColor4f(0, 0, 1, 1);
+    glVertex3f(-1, -1, 0);
+    
+    glEnd();
+    glUseProgram(0);
 }
 
 void draw() {
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glActiveTexture(GL_TEXTURE0);  
+    //glActiveTexture(GL_TEXTURE0);  
     
     // Set texture in the shader  
-    glUniform1i(glGetUniformLocation(p, "texture"), GL_TEXTURE0); 
+    //glUniform1i(glGetUniformLocation(p, "texture"), GL_TEXTURE0); 
     
     
     glBegin(GL_QUADS);
@@ -252,64 +267,6 @@ void draw() {
     glEnd();
     
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-int initGLUT(int argc, char **argv) {
-    // GLUT stuff for windowing
-    // initialization openGL window.
-    // It must be called before any other GLUT routine.
-    glutInit(&argc, argv);
-    
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA);   // display mode
-    
-    glutInitWindowSize(screenWidth, screenHeight);              // window size
-    
-    glutInitWindowPosition(100, 100);                           // window location
-    
-    // finally, create a window with openGL context
-    // Window will not displayed until glutMainLoop() is called
-    // It returns a unique ID.
-    int handle = glutCreateWindow(argv[0]);     // param is the title of window
-    
-    // register GLUT callback functions
-    glutDisplayFunc(displayCB);
-    //glutTimerFunc(33, timerCB, 33);             // redraw only every given millisec
-    glutIdleFunc(idleCB);                       // redraw whenever system is idle
-    glutReshapeFunc(reshapeCB);
-    glutKeyboardFunc(keyboardCB);
-    //glutMouseFunc(mouseCB);
-    //glutMotionFunc(mouseMotionCB);
-    
-    return handle;
-}
-
-void initGL() {
-    /*
-     * @check maybe a lot of useful method ?
-     */
-    //glShadeModel(GL_SMOOTH);                    // shading mathod: GL_SMOOTH or GL_FLAT
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);      // 4-byte pixel alignment
-    
-    // enable /disable features
-    //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
-    //glEnable(GL_CULL_FACE);
-    
-    // track material ambient and diffuse from surface color, call it before glEnable(GL_COLOR_MATERIAL)
-    //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    //glEnable(GL_COLOR_MATERIAL);
-    
-    glClearColor(0, 0, 0, 0);                   // background color
-    //glClearStencil(0);                          // clear stencil buffer
-    //glClearDepth(1.0f);                         // 0 is near, 1 is far
-    //glDepthFunc(GL_LEQUAL);
-    
-    //initLights();
-    //setCamera(0, 0, 6, 0, 0, 0);
 }
 
 bool initSharedMem() {
@@ -375,18 +332,6 @@ bool checkFramebufferStatus() {
             std::cout << "[ERROR] Unknow error." << std::endl;
             return false;
     }
-}
-
-void drawScene() {
-    glBegin(GL_TRIANGLES);
-    glColor4f(1, 0, 0, 1);
-    
-    //glNormal3f(0,0,1);
-    glVertex3f(0, 1, 0);
-    glVertex3f(1, -1, 0);
-    glVertex3f(-1, -1, 0);
-    
-    glEnd();
 }
 
 //=============================================================================
@@ -585,4 +530,63 @@ void keyboardCB(unsigned char key, int x, int y)
 void exitCB()
 {
     clearSharedMem();
+}
+
+
+int initGLUT(int argc, char **argv) {
+    // GLUT stuff for windowing
+    // initialization openGL window.
+    // It must be called before any other GLUT routine.
+    glutInit(&argc, argv);
+    
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA);   // display mode
+    
+    glutInitWindowSize(screenWidth, screenHeight);              // window size
+    
+    glutInitWindowPosition(100, 100);                           // window location
+    
+    // finally, create a window with openGL context
+    // Window will not displayed until glutMainLoop() is called
+    // It returns a unique ID.
+    int handle = glutCreateWindow(argv[0]);     // param is the title of window
+    
+    // register GLUT callback functions
+    glutDisplayFunc(displayCB);
+    //glutTimerFunc(33, timerCB, 33);             // redraw only every given millisec
+    glutIdleFunc(idleCB);                       // redraw whenever system is idle
+    glutReshapeFunc(reshapeCB);
+    glutKeyboardFunc(keyboardCB);
+    //glutMouseFunc(mouseCB);
+    //glutMotionFunc(mouseMotionCB);
+    
+    return handle;
+}
+
+void initGL() {
+    /*
+     * @check maybe a lot of useful method ?
+     */
+    //glShadeModel(GL_SMOOTH);                    // shading mathod: GL_SMOOTH or GL_FLAT
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);      // 4-byte pixel alignment
+    
+    // enable /disable features
+    //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_CULL_FACE);
+    
+    // track material ambient and diffuse from surface color, call it before glEnable(GL_COLOR_MATERIAL)
+    //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    //glEnable(GL_COLOR_MATERIAL);
+    
+    glClearColor(0, 0, 0, 0);                   // background color
+    //glClearStencil(0);                          // clear stencil buffer
+    //glClearDepth(1.0f);                         // 0 is near, 1 is far
+    //glDepthFunc(GL_LEQUAL);
+    
+    //initLights();
+    //setCamera(0, 0, 6, 0, 0, 0);
 }

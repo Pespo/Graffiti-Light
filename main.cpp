@@ -1,6 +1,7 @@
 #include "functions.hpp"
 #include "headers.hpp"
 #include "Timer.h"
+#include "textfile.h"
 #include <cassert>
 #include <iostream>
 #include <cstdio>
@@ -29,7 +30,7 @@ void printFramebufferInfo();
 std::string convertInternalFormatToString(GLenum format);
 std::string getTextureParameters(GLuint id);
 std::string getRenderbufferParameters(GLuint id);
-
+void setShaders();
 
 // constants
 const int SCREEN_WIDTH = 400;
@@ -55,6 +56,12 @@ int drawMode = 0;
 Timer timer, t1;
 float playTime;                     // to compute rotation angle
 float renderToTextureTime;          // elapsed time for render-to-texture
+
+/*
+ * @todo Changes these variables name
+ */
+GLuint v,f,f2,p;
+
 using namespace std;
 
 int main(int argc, char **argv)
@@ -178,6 +185,8 @@ int main(int argc, char **argv)
     // start timer, the elapsed time will be used for rotating the teapot
     timer.start();
     
+    setShaders();
+    
     // the last GLUT call (LOOP)
     // window will be shown and display callback is triggered by events
     // NOTE: this call never return main().
@@ -186,8 +195,50 @@ int main(int argc, char **argv)
     return 0;
 }
 
+void setShaders() {
+    
+	char *vs = NULL,*fs = NULL;//,*fs2 = NULL;
+    
+	v = glCreateShader(GL_VERTEX_SHADER);
+	f = glCreateShader(GL_FRAGMENT_SHADER);
+	f2 = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    
+	vs = textFileRead("toon.vert");
+	fs = textFileRead("toon.frag");
+	//fs2 = textFileRead("toon2.frag");
+    
+	const char * ff = fs;
+	//const char * ff2 = fs2;
+	const char * vv = vs;
+    
+	glShaderSource(v, 1, &vv,NULL);
+	glShaderSource(f, 1, &ff,NULL);
+	//glShaderSource(f2, 1, &ff2,NULL);
+    
+	free(vs);free(fs);
+    
+	glCompileShader(v);
+	glCompileShader(f);
+	//glCompileShader(f2);
+    
+	p = glCreateProgram();
+    //glBindAttribLocation(p, 0, "vertexColor");
+	glAttachShader(p,f);
+	//glAttachShader(p,f2);
+	glAttachShader(p,v);
+    
+	glLinkProgram(p);
+	glUseProgram(p);
+}
+
 void draw() {
     glBindTexture(GL_TEXTURE_2D, textureId);
+    glActiveTexture(GL_TEXTURE0);  
+    
+    // Set texture in the shader  
+    glUniform1i(glGetUniformLocation(p, "texture"), GL_TEXTURE0); 
+    
     
     glBegin(GL_QUADS);
     glColor4f(1, 1, 1, 1);
@@ -211,9 +262,6 @@ int initGLUT(int argc, char **argv) {
     
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA);   // display mode
     
-    /*
-     * @todo define screenWidth, screenHeight
-     */
     glutInitWindowSize(screenWidth, screenHeight);              // window size
     
     glutInitWindowPosition(100, 100);                           // window location
@@ -265,9 +313,7 @@ void initGL() {
 }
 
 bool initSharedMem() {
-    /*
-     * @todo Create constants
-     */
+
     screenWidth = SCREEN_WIDTH;
     screenHeight = SCREEN_HEIGHT;
     //mouseLeftDown = mouseRightDown = false;

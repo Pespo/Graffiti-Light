@@ -12,7 +12,7 @@ endif
 
 all: $(EXE)
 
-$(EXE): main.o functions.o Timer.o
+$(EXE): main.o functions.o Timer.o textfile.o
 	@echo Linking $(EXE) with $^
 	@$(CC) $(LDFLAGS) -o $(EXE) $^
 
@@ -25,6 +25,10 @@ functions.o : functions.cpp functions.hpp
 	@$(CC) $(CGFLAGS) $< -o $@
 
 Timer.o : Timer.cpp Timer.h
+	@echo compiling $@
+	@$(CC) $(CGFLAGS) $< -o $@
+
+textfile.o : textfile.cpp textfile.h
 	@echo compiling $@
 	@$(CC) $(CGFLAGS) $< -o $@
 

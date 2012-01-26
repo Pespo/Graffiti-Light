@@ -80,12 +80,12 @@ int main(int argc, char **argv)
     glBindTexture(GL_TEXTURE_2D, textureId);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
+    //glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -229,11 +229,11 @@ void setShaders() {
 	glAttachShader(p,v);
     
 	glLinkProgram(p);
-	//glUseProgram(p);
+	glUseProgram(p);
 }
 
-void drawScene() {
-    glUseProgram(p);
+void drawCapture() {
+    //glUseProgram(p);
     glBegin(GL_TRIANGLES);
     glColor4f(1, 0, 0, 1);
     
@@ -244,15 +244,17 @@ void drawScene() {
     glVertex3f(-1, -1, 0);
     
     glEnd();
-    glUseProgram(0);
+    //glUseProgram(0);
 }
 
 void draw() {
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
+    //glUniform1i(glGetUniformLocation(p, "texture"), 0);
     //glActiveTexture(GL_TEXTURE0);  
     
     // Set texture in the shader  
-    //glUniform1i(glGetUniformLocation(p, "texture"), GL_TEXTURE0); 
+    glUniform1i(glGetUniformLocation(p, "texture"), 0); 
     
     
     glBegin(GL_QUADS);
@@ -364,6 +366,9 @@ void displayCB()
         // set the rendering destination to FBO
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);
         
+        // Select fisrt texture
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
         // clear buffer
         glClearColor(1, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -374,19 +379,25 @@ void displayCB()
         //glRotatef(angle, 0, 1, 0);
         //glRotatef(angle*0.7f, 0, 0, 1);
         //glTranslatef(0, -1.575f, 0);
-        drawScene();
+        drawCapture();
         glPopMatrix();
         
         // back to normal window-system-provided framebuffer
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // unbind
         
+        
+        /*glActiveTexture(GL_TEXTURE0);
+        //glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, fbo_texture0);
+        glUniform1i(glGetUniformLocation(shaderProgram, "tex0"), 0);*/
+        
         // trigger mipmaps generation explicitly
         // NOTE: If GL_GENERATE_MIPMAP is set to GL_TRUE, then glCopyTexSubImage2D()
         // triggers mipmap generation automatically. However, the texture attached
         // onto a FBO should generate mipmaps manually via glGenerateMipmapEXT().
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        glGenerateMipmapEXT(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        //glBindTexture(GL_TEXTURE_2D, textureId);
+        //glGenerateMipmapEXT(GL_TEXTURE_2D);
+        //glBindTexture(GL_TEXTURE_2D, 0);
     }
     /*
     // without FBO

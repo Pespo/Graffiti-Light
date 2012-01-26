@@ -147,8 +147,8 @@ int main(int argc, char **argv)
     if(fboSupported)
     {
         // create a framebuffer object, you need to delete them when program exits.
-        glGenFramebuffersEXT(1, &fboId);
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);
+        glGenFramebuffers(1, &fboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
         
         // create a renderbuffer object to store depth info
         // NOTE: A depth renderable image should be attached the FBO for depth test.
@@ -156,16 +156,16 @@ int main(int argc, char **argv)
         // the rendering output will be corrupted because of missing depth test.
         // If you also need stencil test for your rendering, then you must
         // attach additional image to the stencil attachement point, too.
-        glGenRenderbuffersEXT(1, &rboId);
-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rboId);
-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+        glGenRenderbuffers(1, &rboId);
+        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
         
         // attach a texture to FBO color attachement point
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, textureId, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
         
         // attach a renderbuffer to depth attachment point
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, rboId);
+        //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId);
         
         //@ disable color buffer if you don't attach any color buffer image,
         //@ for example, rendering depth buffer only to a texture.
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         if(!status)
             fboUsed = false;
         
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     
     // start timer, the elapsed time will be used for rotating the teapot
@@ -288,45 +288,37 @@ void clearSharedMem() {
     // clean up FBO, RBO
     if(fboSupported)
     {
-        glDeleteFramebuffersEXT(1, &fboId);
-        glDeleteRenderbuffersEXT(1, &rboId);
+        glDeleteFramebuffers(1, &fboId);
+        glDeleteRenderbuffers(1, &rboId);
     }
 }
 
 bool checkFramebufferStatus() {
     // check FBO status
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     switch(status)
     {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
+        case GL_FRAMEBUFFER_COMPLETE:
             std::cout << "Framebuffer complete." << std::endl;
             return true;
             
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
             std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
             return false;
             
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
             std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
             return false;
-            
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
-            return false;
-            
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
-            return false;
-            
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+                        
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
             std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
             return false;
             
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
             std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
             return false;
             
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        case GL_FRAMEBUFFER_UNSUPPORTED:
             std::cout << "[ERROR] Unsupported by FBO implementation." << std::endl;
             return false;
             
@@ -364,14 +356,14 @@ void displayCB()
     if(fboUsed)
     {
         // set the rendering destination to FBO
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
         
         // Select fisrt texture
         glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
         // clear buffer
         glClearColor(1, 1, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         
         // draw a rotating teapot
         glPushMatrix();
@@ -383,7 +375,7 @@ void displayCB()
         glPopMatrix();
         
         // back to normal window-system-provided framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0); // unbind
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind
         
         
         /*glActiveTexture(GL_TEXTURE0);
@@ -394,9 +386,9 @@ void displayCB()
         // trigger mipmaps generation explicitly
         // NOTE: If GL_GENERATE_MIPMAP is set to GL_TRUE, then glCopyTexSubImage2D()
         // triggers mipmap generation automatically. However, the texture attached
-        // onto a FBO should generate mipmaps manually via glGenerateMipmapEXT().
+        // onto a FBO should generate mipmaps manually via glGenerateMipmap().
         //glBindTexture(GL_TEXTURE_2D, textureId);
-        //glGenerateMipmapEXT(GL_TEXTURE_2D);
+        //glGenerateMipmap(GL_TEXTURE_2D);
         //glBindTexture(GL_TEXTURE_2D, 0);
     }
     /*
@@ -406,7 +398,7 @@ void displayCB()
     {
         // clear buffer
         glClearColor(1, 1, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         
         glPushAttrib(GL_COLOR_BUFFER_BIT | GL_PIXEL_MODE_BIT); // for GL_DRAW_BUFFER and GL_READ_BUFFER
         glDrawBuffer(GL_BACK);
@@ -446,7 +438,7 @@ void displayCB()
     
     // clear framebuffer
     glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     glPushMatrix();
     
@@ -588,7 +580,7 @@ void initGL() {
     //glEnable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     //glEnable(GL_CULL_FACE);
-    
+    glDepthMask(GL_FALSE);
     // track material ambient and diffuse from surface color, call it before glEnable(GL_COLOR_MATERIAL)
     //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     //glEnable(GL_COLOR_MATERIAL);

@@ -1,5 +1,5 @@
 
-    #include "stdafx.h"
+#include "headers.hpp"
 
 
 void resetMask(unsigned char *mask, unsigned int width, unsigned int height) {

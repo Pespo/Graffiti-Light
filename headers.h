@@ -3,16 +3,18 @@
 // et sont rarement modifiés
 //
 
-#ifndef __HEADERS_H__
-#define __HEADERS_H__
 	
 	#include "functions.hpp"
 
 	#if defined _WIN64 || defined _WIN32
 		#pragma once
 		#include "targetver.h"
+		#include <windows.h> 
 		#include <opencv2/opencv.hpp>
 		#include <tchar.h>
+		#include <stdlib.h>
+		#include <stdio.h>
+		#include <SDL/SDL.h>
 	#elif __APPLE__
 		#include <opencv2/opencv.hpp>
 	#elif __linux
@@ -23,14 +25,13 @@
 		// POSIX
 	#endif
 
-
+	
 	#include <cassert>
 	#include <iostream>
 	#include <cstdio>
 	#include <ctime>
 	#include <stdio.h>
 
-#endif
 
 
 

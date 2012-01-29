@@ -21,6 +21,8 @@ void initTimers();
 static inline Uint32 genericTimer(Uint32 interval, void* param);
 void initHardware(const int w, const int h);
 
+IplImage * current_frame = NULL;
+
 size_t fullScreenWidth;
 size_t fullScreenHeight;
 size_t width;
@@ -28,6 +30,7 @@ size_t height;
 size_t windowedWidth;
 size_t windowedHeight;
 static int timerId = 1;
+GLuint camTexture;
 
 GLuint shaderCompo;
 GLuint shaderMask;
@@ -37,6 +40,7 @@ GLuint frameCount;
 uint64_t m_LastStartTime;
 uint64_t m_FrameDuration;
 SDL_TimerID animateTimer;
+CvCapture * camera;
 
 bool bRunning;
 
@@ -55,6 +59,14 @@ using namespace std;
 
 int main (int argc, char** argv) {
 	cout << "Pouet" << endl;
+	camera = cvCaptureFromCAM(CV_CAP_ANY);
+	
+    if (!camera)
+        abort();
+	
+	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
+	current_frame = cvQueryFrame(camera);
+
     pDrawContext = NULL;
     windowedWidth = WINDOW_WIDTH;
     windowedHeight = WINDOW_HEIGHT;
@@ -63,14 +75,17 @@ int main (int argc, char** argv) {
         
     // Initialisation of SDL and creation of OpenGL context
     initSDLOpenGL();
-    //initHardware(WINDOW_WIDTH, WINDOW_HEIGHT);
-    cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
+    initHardware(current_frame->width, current_frame->height);
+    //cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
     loop();
+
+
+
     return 0;
 }
 
 void initTimers() {
-    animateTimer = SDL_AddTimer(20, genericTimer, &timerId);
+   // animateTimer = SDL_AddTimer(20, genericTimer, &timerId);
 }
 
 void initSDLOpenGL() {
@@ -79,6 +94,8 @@ void initSDLOpenGL() {
     if (sdlError < 0)
         cout << "Unable to init SDL : " << SDL_GetError() << endl;
     
+	//SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+    //SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
     
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // Double buffering
     //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16); // Depth buffer size of 16-bit
@@ -104,6 +121,7 @@ void initSDLOpenGL() {
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     
+	
     //glLineWidth(2);
 }
 
@@ -169,8 +187,16 @@ void handleEvent(const SDL_Event& event) {
 void renderFrame() {
     glClear(GL_COLOR_BUFFER_BIT);
     
-    glUseProgram(shaderCompo);
     
+    current_frame = cvQueryFrame(camera);
+    
+	glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, camTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, current_frame->width, current_frame->height, 0, GL_RGB, GL_UNSIGNED_BYTE, current_frame->imageData);
+
+	glUseProgram(shaderCompo);
+    
+	glUniform1i(glGetUniformLocation(shaderCompo, "camTexture"), 0);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     /* The function ! create pointer between vbo datas and shader
      * Manage to use datas 2 by 2 (2 coords for each vertex)
@@ -180,13 +206,13 @@ void renderFrame() {
     GLuint posLoc = glGetAttribLocation(shaderCompo, "vertPosition");
     GLuint texLoc = glGetAttribLocation(shaderCompo, "textPosition");
     
-    //glEnableVertexAttribArray(posLoc);
-    //glEnableVertexAttribArray(texLoc);
+    glEnableVertexAttribArray(posLoc);
+    glEnableVertexAttribArray(texLoc);
     
-    //glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-    //glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (GLvoid*)(2 * sizeof(float)));
+    glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (GLvoid*)(2 * sizeof(float)));
     
-    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     
 
     
@@ -224,6 +250,11 @@ void printGlErrors() {
 }
 
 void loop() {
+
+
+while(1) renderFrame();
+return;
+
     initTimers();
     //m_LastStartTime = getTime();
     SDL_Event event;
@@ -243,7 +274,7 @@ GLuint createProgram(char* vertexPath, char* fragmentPath) {
     
 	const char* vertexSource = textFileRead(vertexPath);
 	const char* fragmentSource = textFileRead(fragmentPath);
-    
+    //cout << vertexSource << endl << fragmentSource << endl;
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
     
@@ -309,12 +340,17 @@ void initHardware(const int w, const int h) {
         glBindTexture(GL_TEXTURE_2D, masks[i].time);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16I, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData);
 
     }
     
     delete [] voidData;
     
+	glBindTexture(GL_TEXTURE_2D, camTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, current_frame->imageData);
+
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     GLenum fboTargets[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};

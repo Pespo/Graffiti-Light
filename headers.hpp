@@ -2,15 +2,12 @@
 #define __HEADERS_HPP__
 
 #if defined _WIN64 || defined _WIN32
-//	#include <windows.h>
-//	#include "stdafx.h"
 
 	#include <opencv2/opencv.hpp>
 	#include <GL/glew.h>
-	//#include <GL/glut.h>
 	#include <GL/GL.h>
 	#include <GL/GLU.h>
-	#include <SDL/SDL.h>
+	#include <sdl-1.3/SDL.h>
 	
 
 #elif __APPLE__

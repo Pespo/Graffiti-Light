@@ -1,7 +1,7 @@
-#include "glew/glew.h"
 #include "headers.hpp"
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 
 #define WINDOW_WIDTH 800;
 #define WINDOW_HEIGHT 600;
@@ -25,6 +25,7 @@ SDL_Surface *pDrawContext;
 using namespace std;
 
 int main (int argc, char** argv) {
+	cout << "Pouet" << endl;
     pDrawContext = NULL;
     windowedWidth = WINDOW_WIDTH;
     windowedHeight = WINDOW_HEIGHT;
@@ -69,7 +70,7 @@ void initSDLOpenGL() {
 //    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 //    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 //    SDL_WarpMouse(width / 2, height / 2);
-//   SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+//    SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
     
 //    glEnable(GL_DEPTH_TEST);
     

@@ -1,10 +1,11 @@
 #include "glew/glew.h"
 #include "headers.hpp"
+#include "textfile.h"
 #include <cstdlib>
 #include <cstdio>
 
-#define WINDOW_WIDTH 800;
-#define WINDOW_HEIGHT 600;
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
 
 void initSDLOpenGL();
 void initFBOs();
@@ -18,6 +19,7 @@ void printGlErrors();
 void loop();
 void initTimers();
 static inline Uint32 genericTimer(Uint32 interval, void* param);
+void initHardware(const int w, const int h);
 
 size_t fullScreenWidth;
 size_t fullScreenHeight;
@@ -26,6 +28,10 @@ size_t height;
 size_t windowedWidth;
 size_t windowedHeight;
 static int timerId = 1;
+
+GLuint shaderCompo;
+GLuint shaderMask;
+GLuint quadVBO;
 
 GLuint frameCount;
 uint64_t m_LastStartTime;
@@ -38,6 +44,13 @@ uint32_t videoModeFlags;
 
 SDL_Surface *pDrawContext;
 
+GLuint fbo;
+struct Mask{
+    GLuint color; 
+    GLuint time;
+} masks[2];
+
+
 using namespace std;
 
 int main (int argc, char** argv) {
@@ -49,6 +62,8 @@ int main (int argc, char** argv) {
         
     // Initialisation of SDL and creation of OpenGL context
     initSDLOpenGL();
+    //initHardware(WINDOW_WIDTH, WINDOW_HEIGHT);
+    cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
     loop();
     return 0;
 }
@@ -66,13 +81,7 @@ void initSDLOpenGL() {
     
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // Double buffering
     //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16); // Depth buffer size of 16-bit
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); // Color components size of 8-bit each
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    
-    SDL_EnableUNICODE(1);
-        
+
     const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
     fullScreenWidth = videoInfo->current_w;
     fullScreenHeight = videoInfo->current_h;
@@ -90,12 +99,12 @@ void initSDLOpenGL() {
 //    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 //    SDL_WarpMouse(width / 2, height / 2);
 //   SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-    
-//    glEnable(GL_DEPTH_TEST);
-    
+        
     glClearColor(0., 0., 0., 1.);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
     
-    glLineWidth(2);
+    //glLineWidth(2);
 }
 
 void resize(GLuint w, GLuint h) {
@@ -110,7 +119,6 @@ void resize(GLuint w, GLuint h) {
 
 void handleUserEvent(const SDL_Event& event) {  
     if (event.user.code == timerId) {
-        animate();
         renderFrame();
         
         printGlErrors();
@@ -159,9 +167,28 @@ void handleEvent(const SDL_Event& event) {
 }
 
 void renderFrame() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
-    //m_Scene.drawObjectsOfScene();
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(shaderCompo);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    /* The function ! create pointer between vbo datas and shader
+     * Manage to use datas 2 by 2 (2 coords for each vertex)
+     */
+    
+    // get the id of the var in shader
+    GLuint posLoc = glGetAttribLocation(shaderCompo, "vertPosition");
+    GLuint texLoc = glGetAttribLocation(shaderCompo, "textPosition");
+    
+    //glEnableVertexAttribArray(posLoc);
+    //glEnableVertexAttribArray(texLoc);
+    
+    //glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    //glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (GLvoid*)(2 * sizeof(float)));
+    
+    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+
     
     SDL_GL_SwapBuffers();
 }
@@ -208,6 +235,102 @@ void loop() {
     }
 }
 
-void initFBOs() {
+GLuint createProgram(char* vertexPath, char* fragmentPath) {
+    GLuint vertexShader, fragmentShader;
     
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    
+	const char* vertexSource = textFileRead(vertexPath);
+	const char* fragmentSource = textFileRead(fragmentPath);
+    
+	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+    
+	free((void*)vertexSource);
+    free((void*)fragmentSource);
+    
+    GLuint shaders[2] = {vertexShader, fragmentShader};
+
+    GLint compiled;
+    for (int i = 0; i < 2; ++i) {
+        glCompileShader(shaders[i]);
+    
+        glGetShaderiv(shaders[i], GL_COMPILE_STATUS, &compiled); 
+    
+        // Print compilation error (if any)
+        if( compiled != GL_TRUE ){
+            
+            GLint length; GLchar *buffer;
+            glGetShaderiv( shaders[i], GL_INFO_LOG_LENGTH, &length);
+            buffer = new char[length];
+            glGetShaderInfoLog( shaders[i], length, NULL, buffer);
+            std::cerr << buffer << std::endl;
+            std::cerr << std::endl << "-------------------------------------" << std::endl;
+            delete[] buffer;
+        }
+    }
+    
+    GLuint prgm = glCreateProgram();
+	glAttachShader(prgm, fragmentShader);
+	glAttachShader(prgm, vertexShader);
+    
+	glLinkProgram(prgm);
+    
+    GLint linked;
+    glGetProgramiv( prgm, GL_LINK_STATUS, &linked);
+    
+    // Print linking error (if any)
+    if( linked != GL_TRUE ){
+        
+        GLint length; char *buffer;
+        glGetProgramiv( prgm, GL_INFO_LOG_LENGTH, &length );
+        buffer = new char[length];
+        glGetProgramInfoLog( prgm, length, NULL, buffer );
+        std::cerr << buffer << std::endl << "-------------------------------------" << std::endl;
+        delete[] buffer;
+    }
+    
+    return prgm;
+}
+
+void initHardware(const int w, const int h) {
+    unsigned short *voidData = new unsigned short[w * h];
+    memset(voidData, 0, w * h * sizeof(unsigned short));
+    
+    for (int i = 0; i < 2; ++i) {
+        glGenTextures(1, &masks[i].color);
+        glGenTextures(1, &masks[i].time);
+        
+        glBindTexture(GL_TEXTURE_2D, masks[i].color);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        
+        glBindTexture(GL_TEXTURE_2D, masks[i].time);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData);
+
+    }
+    
+    delete [] voidData;
+    
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    GLenum fboTargets[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, fboTargets);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    float quadCoord[4 * 4] = {-1, 1, 0, 0,
+                            -1, -1, 0, 1,
+                            1, -1, 1, 1,
+                            1, 1, 1, 0};
+    
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, 4 * 4 * sizeof(float), quadCoord, GL_STATIC_DRAW);
+    
+    shaderCompo = createProgram("compo.vert", "compo.frag");
+    shaderMask = createProgram("mask.vert", "mask.frag");
 }

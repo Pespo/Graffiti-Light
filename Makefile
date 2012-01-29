@@ -12,7 +12,7 @@ endif
 
 all: $(EXE)
 
-$(EXE): main.o glew.o
+$(EXE): main.o glew.o textfile.o
 	@echo Linking $(EXE) with $^
 	@$(CC) $(LDFLAGS) -o $(EXE) $^
 
@@ -21,6 +21,10 @@ main.o : main.cpp
 	@$(CC) $(CGFLAGS) $< -o $@
 
 glew.o : glew/glew.c glew/glew.h
+	@echo compiling $@
+	@$(CC) $(CGFLAGS) $< -o $@
+
+textfile.o : textfile.cpp textfile.h
 	@echo compiling $@
 	@$(CC) $(CGFLAGS) $< -o $@
 

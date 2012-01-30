@@ -22,6 +22,7 @@ static inline Uint32 genericTimer(Uint32 interval, void* param);
 void initHardware(const int w, const int h);
 
 IplImage * current_frame = NULL;
+IplImage * capture_frame = NULL;
 
 size_t fullScreenWidth;
 size_t fullScreenHeight;
@@ -57,15 +58,20 @@ struct Mask{
 
 using namespace std;
 
-int main (int argc, char** argv) {
-	cout << "Pouet" << endl;
+int main (int argc, char* argv[]) {
+
 	camera = cvCaptureFromCAM(CV_CAP_ANY);
 	
     if (!camera)
         abort();
 	
 	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
-	current_frame = cvQueryFrame(camera);
+	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
+	cvSetCaptureProperty(camera, CV_CAP_PROP_BRIGHTNESS, 0);
+    
+	capture_frame = cvQueryFrame(camera);
+    current_frame = cvCreateImage(cvSize(capture_frame->width, capture_frame->height), IPL_DEPTH_8U, 3);
+    cvFlip(capture_frame, current_frame, 1);
 
     pDrawContext = NULL;
     windowedWidth = WINDOW_WIDTH;
@@ -78,9 +84,6 @@ int main (int argc, char** argv) {
     initHardware(current_frame->width, current_frame->height);
     //cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
     loop();
-
-
-
     return 0;
 }
 
@@ -188,7 +191,8 @@ void renderFrame() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     
-    current_frame = cvQueryFrame(camera);
+    capture_frame = cvQueryFrame(camera);
+    cvFlip(capture_frame, current_frame, 1);
     
 	glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, camTexture);
@@ -250,16 +254,12 @@ void printGlErrors() {
 }
 
 void loop() {
-
-
-while(1) renderFrame();
-return;
-
     initTimers();
     //m_LastStartTime = getTime();
     SDL_Event event;
     
     while (bRunning) {
+        renderFrame();
         while (SDL_PollEvent(&event))
             handleEvent(event); // Checks each event for types and loach corresponding actions
         printGlErrors();
@@ -366,7 +366,12 @@ void initHardware(const int w, const int h) {
     glGenBuffers(1, &quadVBO);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, 4 * 4 * sizeof(float), quadCoord, GL_STATIC_DRAW);
-    
-    shaderCompo = createProgram("compo.vert", "compo.frag");
-    shaderMask = createProgram("mask.vert", "mask.frag");
+ 
+#ifdef __APPLE__
+    shaderCompo = createProgram("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
+    shaderMask = createProgram("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
+#else 
+    shaderCompo = createProgram("shaders/compo.vert", "shaders/compo.frag");
+    shaderMask = createProgram("shaders/mask.vert", "shaders/mask.frag");
+#endif
 }

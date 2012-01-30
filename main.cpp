@@ -408,7 +408,6 @@ void initTextures(const int w, const int h) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData4B);
-        
     }
     
     delete [] voidData1B;
@@ -451,8 +450,8 @@ void initShaders() {
     shaderCompo = createProgram("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
     shaderMask = createProgram("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
 #else 
-    shaderCompo = createProgram("shaders/compo.vert", "shaders/compo.frag");
-    shaderMask = createProgram("shaders/mask.vert", "shaders/mask.frag");
+    shaderCompo = createProgram("src/shaders/compo.vert", "src/shaders/compo.frag");
+    shaderMask = createProgram("src/shaders/mask.vert", "src/shaders/mask.frag");
 #endif
 }
 

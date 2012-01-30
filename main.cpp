@@ -4,9 +4,6 @@
 #include <cstdio>
 #include <iostream>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-
 void initSDLOpenGL();
 void initFBOs();
 void resize(GLuint w, GLuint h);
@@ -15,23 +12,24 @@ void handleKeyEvent(const SDL_keysym& keysym, bool down);
 void animate();
 void handleEvent(const SDL_Event& event);
 void renderFrame();
+void renderOffScreen();
+void renderOnScreen();
 void printGlErrors();
 void loop();
-void initTimers();
-static inline Uint32 genericTimer(Uint32 interval, void* param);
 void initHardware(const int w, const int h);
 
 IplImage * current_frame = NULL;
 IplImage * capture_frame = NULL;
 
-size_t fullScreenWidth;
-size_t fullScreenHeight;
-size_t width;
-size_t height;
-size_t windowedWidth;
-size_t windowedHeight;
+size_t screenWidth;
+size_t screenHeight;
+size_t windowWidth;
+size_t windowHeight;
+size_t cameraWidth;
+size_t cameraHeight;
 static int timerId = 1;
 GLuint camTexture;
+GLuint pingpongId;
 
 GLuint shaderCompo;
 GLuint shaderMask;
@@ -65,20 +63,27 @@ int main (int argc, char* argv[]) {
     if (!camera)
         abort();
 	
+    pingpongId = 0;
+    
 	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
 	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
-	cvSetCaptureProperty(camera, CV_CAP_PROP_BRIGHTNESS, 0);
+	//cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH, 640);
+	//cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT, 426);
     
+    /*
+     * Flip the IplImages for deinterleaving
+     */
 	capture_frame = cvQueryFrame(camera);
     current_frame = cvCreateImage(cvSize(capture_frame->width, capture_frame->height), IPL_DEPTH_8U, 3);
     cvFlip(capture_frame, current_frame, 1);
 
     pDrawContext = NULL;
-    windowedWidth = WINDOW_WIDTH;
-    windowedHeight = WINDOW_HEIGHT;
+    cameraWidth = capture_frame->width;
+    cameraHeight = capture_frame->height;
     videoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
     bRunning = true;
-        
+    
+    
     // Initialisation of SDL and creation of OpenGL context
     initSDLOpenGL();
     initHardware(current_frame->width, current_frame->height);
@@ -87,55 +92,50 @@ int main (int argc, char* argv[]) {
     return 0;
 }
 
-void initTimers() {
-   // animateTimer = SDL_AddTimer(20, genericTimer, &timerId);
-}
-
 void initSDLOpenGL() {
     
     int sdlError = SDL_Init(SDL_INIT_EVERYTHING);
     if (sdlError < 0)
         cout << "Unable to init SDL : " << SDL_GetError() << endl;
     
-	//SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    //SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // Double buffering
-    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16); // Depth buffer size of 16-bit
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-    fullScreenWidth = videoInfo->current_w;
-    fullScreenHeight = videoInfo->current_h;
-    
-    width = windowedWidth;
-    height = windowedHeight;
+    screenWidth = videoInfo->current_w;
+    screenHeight = videoInfo->current_h;
 
-    pDrawContext = SDL_SetVideoMode(width, height, 0, videoModeFlags);
+    
+    if (cameraHeight > screenHeight || cameraWidth > screenWidth) {
+        float widthScale = cameraWidth / screenWidth;
+        float heightScale = cameraHeight / screenHeight;
+        float rapport = cameraHeight / widthScale;
+
+        if (rapport < screenHeight) {
+            windowWidth = screenWidth;
+            windowHeight = rapport;
+        } else {
+            windowWidth = cameraWidth / heightScale;
+            windowHeight = screenHeight;
+        }
+    } else {
+        windowWidth = cameraWidth;
+        windowHeight = cameraHeight;
+    }
+    
+    
+    
+    pDrawContext = SDL_SetVideoMode(windowWidth, windowHeight, 0, videoModeFlags);
     
     GLenum glewError = glewInit();
     if (glewError != GLEW_OK)
         cout << "GLEW Error : " << glewGetErrorString(glewError) << endl;
-    
-//    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-//    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-//    SDL_WarpMouse(width / 2, height / 2);
 
     glClearColor(0., 0., 0., 1.);
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
-    
-	
-    //glLineWidth(2);
-}
-
-void resize(GLuint w, GLuint h) {
-    
-    width = w;
-    height = h;
-    
-    pDrawContext = SDL_SetVideoMode(width, height, 0, videoModeFlags);
-
-    glViewport(0, 0, width, height);
 }
 
 void handleUserEvent(const SDL_Event& event) {  
@@ -143,13 +143,6 @@ void handleUserEvent(const SDL_Event& event) {
         renderFrame();
         
         printGlErrors();
-        
-        ++frameCount;
-        if (frameCount % 20 == 0) {
-            //uint64_t time = getTime();
-            //m_FrameDuration = (time - m_LastStartTime) / 20LL;
-            //m_LastStartTime = time;
-        }
     }
 }
 
@@ -163,9 +156,6 @@ void handleKeyEvent(const SDL_keysym& keysym, bool down) {
                 break;
         }
     }
-}
-
-void animate() {
 }
 
 void handleEvent(const SDL_Event& event) {
@@ -187,50 +177,96 @@ void handleEvent(const SDL_Event& event) {
     }
 }
 
-void renderFrame() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    
-    capture_frame = cvQueryFrame(camera);
-    cvFlip(capture_frame, current_frame, 1);
-    
-	glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, camTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, current_frame->width, current_frame->height, 0, GL_RGB, GL_UNSIGNED_BYTE, current_frame->imageData);
-
-	glUseProgram(shaderCompo);
-    
-	glUniform1i(glGetUniformLocation(shaderCompo, "camTexture"), 0);
+void buildDrawSurface() {
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    /* The function ! create pointer between vbo datas and shader
-     * Manage to use datas 2 by 2 (2 coords for each vertex)
-     */
-    
-    // get the id of the var in shader
+    // Get the index of the attribute vars in shader
     GLuint posLoc = glGetAttribLocation(shaderCompo, "vertPosition");
     GLuint texLoc = glGetAttribLocation(shaderCompo, "textPosition");
     
+    /* THE function ! create pointer between vbo datas and shader
+     * 
+     */
     glEnableVertexAttribArray(posLoc);
     glEnableVertexAttribArray(texLoc);
     
+    // Define vertex position : 2 values in a range of 4, starting at index 0
     glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    // Define texture position : 2 values in a range of 4, starting at index 2
     glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (GLvoid*)(2 * sizeof(float)));
     
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    
-
-    
-    SDL_GL_SwapBuffers();
 }
 
-static inline Uint32 genericTimer(Uint32 interval, void* param) {
-    SDL_Event event;
-    event.type = SDL_USEREVENT;
-    event.user.code = *static_cast<int*>(param);
-    event.user.data1 = 0;
-    event.user.data2 = 0;
-    SDL_PushEvent(&event);
-    return interval;
+void renderOffScreen() {
+
+    pingpongId = pingpongId == 0 ? 1 : 0;
+    
+    glUseProgram(shaderMask);
+    
+    // Switch to offScreen fbo
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        
+    
+    /* Activate texture at Index 0
+     * Draw the frame captured
+     */
+	glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, camTexture);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
+    
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].time);
+    
+    /* Get the index of var "CamTexture" in the shader
+     * Set this var to 0 (The index of the texture)
+     */
+	glUniform1i(glGetUniformLocation(shaderCompo, "camTexture"), 0);
+    glUniform1i(glGetUniformLocation(shaderCompo, "colorTexture"), 1);
+    glUniform1i(glGetUniformLocation(shaderCompo, "timeTexture"), 2);
+    
+    buildDrawSurface();
+}
+
+void renderOnScreen() {
+    glUseProgram(shaderCompo);
+    
+    // Point to the screen again
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    // Binder une autre texture : celle du masque
+    // L'affecter à une variable du shader (maskTexture)
+    // --> Modifier le shader en conséquence
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, camTexture);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
+    
+    glUniform1i(glGetUniformLocation(shaderCompo, "camTexture"), 0);
+    glUniform1i(glGetUniformLocation(shaderCompo, "maskTexture"), 1);
+    
+    buildDrawSurface();
+}
+
+void renderFrame() {
+
+    capture_frame = cvQueryFrame(camera);
+    cvFlip(capture_frame, current_frame, 1);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, camTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, current_frame->width, current_frame->height, 0, GL_RGB, GL_UNSIGNED_BYTE, current_frame->imageData);
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    //renderOffScreen();
+    
+    renderOnScreen();
+    
+    SDL_GL_SwapBuffers();
 }
 
 void printGlErrors() {
@@ -254,8 +290,6 @@ void printGlErrors() {
 }
 
 void loop() {
-    initTimers();
-    //m_LastStartTime = getTime();
     SDL_Event event;
     
     while (bRunning) {
@@ -325,48 +359,94 @@ GLuint createProgram(char* vertexPath, char* fragmentPath) {
     return prgm;
 }
 
-void initHardware(const int w, const int h) {
-    unsigned short *voidData = new unsigned short[w * h];
-    memset(voidData, 0, w * h * sizeof(unsigned short));
-    
-    for (int i = 0; i < 2; ++i) {
-        glGenTextures(1, &masks[i].color);
-        glGenTextures(1, &masks[i].time);
-        
-        glBindTexture(GL_TEXTURE_2D, masks[i].color);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        
-        glBindTexture(GL_TEXTURE_2D, masks[i].time);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16I, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData);
-
-    }
-    
-    delete [] voidData;
-    
-	glBindTexture(GL_TEXTURE_2D, camTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, current_frame->imageData);
-
+void initFBO() {
+    /* FBO for send the mask to the gpu
+     * 
+     */
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    // Two targets in the FBO : one color texture, one time texture
     GLenum fboTargets[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     glDrawBuffers(2, fboTargets);
     
+    // Point to the screen again
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
-    float quadCoord[4 * 4] = {-1, 1, 0, 0,
-                            -1, -1, 0, 1,
-                            1, -1, 1, 1,
-                            1, 1, 1, 0};
+void initTextures(const int w, const int h) {
+
+    unsigned short *voidData1B = new unsigned short[w * h];
+    memset(voidData1B, 0, w * h * sizeof(unsigned short));
     
+    unsigned short *voidData4B = new unsigned short[4 * w * h];
+    memset(voidData1B, 0, 4 * w * h * sizeof(unsigned short));
+    
+    /* Two masks for ping ponging
+     */
+    for (int i = 0; i < 2; ++i) {
+        /* Generate textures for the mask
+         *  One for the print
+         *  One for the life time
+         */
+        glGenTextures(1, &masks[i].color);
+        glGenTextures(1, &masks[i].time);
+        
+        /* Bind the texture for drawing 
+         * Paramtering
+         * It's not initialized because it will be done at each frame
+         */
+        glBindTexture(GL_TEXTURE_2D, masks[i].color);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_SHORT, voidData1B);
+
+        /* Bind the texture for drawing 
+         * Parametering
+         * Initialized with zeros
+         */
+        glBindTexture(GL_TEXTURE_2D, masks[i].time);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData4B);
+        
+    }
+    
+    delete [] voidData1B;
+    delete [] voidData4B;
+    
+    /* Texture for saving the camera frames
+     * Initialisation with one frame
+     */
+    glGenTextures(1, &camTexture);
+	glBindTexture(GL_TEXTURE_2D, camTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, current_frame->imageData);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void initDrawSurface() {
+    /* Coords for one quad in all screen
+     * Two coords for the vertice
+     * Two coords for the texture
+     */
+    float quadCoord[4 * 4] = {-1, 1, 0, 0,
+        -1, -1, 0, 1,
+        1, -1, 1, 1,
+        1, 1, 1, 0};
+    
+    /* Create Vertex Buffer Object to stock the quad
+     * GL_STATIC_DRAW : fastest drawing - calculated one time
+     */
     glGenBuffers(1, &quadVBO);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, 4 * 4 * sizeof(float), quadCoord, GL_STATIC_DRAW);
- 
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void initShaders() {
 #ifdef __APPLE__
     shaderCompo = createProgram("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
     shaderMask = createProgram("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
@@ -374,4 +454,15 @@ void initHardware(const int w, const int h) {
     shaderCompo = createProgram("shaders/compo.vert", "shaders/compo.frag");
     shaderMask = createProgram("shaders/mask.vert", "shaders/mask.frag");
 #endif
+}
+
+void initHardware(const int w, const int h) {
+
+    initTextures(w, h);
+
+    initFBO();
+
+    initDrawSurface();
+    
+    initShaders();
 }

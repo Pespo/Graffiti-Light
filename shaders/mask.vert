@@ -1,11 +1,11 @@
-// simple toon vertex shader
-// www.lighthouse3d.com
+#version 150
 
+in vec2 vertPosition;
+in vec2 textPosition;
 
-varying vec3 normal, lightDir;
+smooth out vec2 textCoord;
 
-void main()
-{	
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_Position = ftransform();
+void main() {
+    gl_Position = vec4(vertPosition, 0, 1);
+    textCoord = textPosition;
 }

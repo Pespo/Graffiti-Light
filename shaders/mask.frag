@@ -1,10 +1,9 @@
-// simple toon fragment shader
-// www.lighthouse3d.com
+#version 150
 
-varying vec3 normal, lightDir;
-uniform sampler2D texture;
+smooth in vec2 textCoord;
+out vec4 OutColor;
+uniform sampler2D camTexture;
 
 void main() {
-    //if ()
-    //gl_FragColor = vec4texture2D(texture, gl_TexCoord[0].st);
+    OutColor = texture(camTexture, textCoord).bgra;
 }

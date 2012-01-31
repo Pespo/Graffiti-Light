@@ -155,14 +155,15 @@ void handleKeyEvent(const SDL_keysym& keysym, bool down) {
             case SDLK_ESCAPE :
                 bRunning = false;
                 break;                
-            /*case SDLK_R :
-                unsigned char *voidData4B = new unsigned char[4 * w * h];
-                memset(voidData1B, 0, 4 * w * h * sizeof(unsigned char));
+            case SDLK_r : {
+                unsigned char *voidData4B = new unsigned char[4 * current_frame->width * current_frame->height];
+                memset(voidData4B, 0, 4 * current_frame->width * current_frame->height * sizeof(unsigned char));
                 glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, voidData4B);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, current_frame->width, current_frame->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, voidData4B);
                 delete [] voidData4B;
-                break;*/
-            default:
+                break;
+            }
+            default :
                 break;
         }
     }
@@ -423,7 +424,7 @@ void initTextures(const int w, const int h) {
     memset(voidData1B, 1, w * h * sizeof(unsigned short));
     
     unsigned char *voidData4B = new unsigned char[4 * w * h];
-    memset(voidData1B, 0, 4 * w * h * sizeof(unsigned char));
+    memset(voidData4B, 1, 4 * w * h * sizeof(unsigned char));
     
     /* Two masks for ping ponging
      */

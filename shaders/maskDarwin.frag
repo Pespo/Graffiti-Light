@@ -15,13 +15,13 @@ void main() {
     
     float lumCam = dot(colorCam.rgb, vec3(0.33));
     
-    float seuil = 0.2;
+    float seuil = 0.7;
         
     if (lumCam >= seuil) {
         gl_FragData[0].r = colorCam.r;
         gl_FragData[0].g = colorCam.g;
         gl_FragData[0].b = colorCam.b;
-        gl_FragData[0].a = 1. / (1. - seuil) * (lumCam - seuil);
+        gl_FragData[0].a = 1. / (0.2) * (lumCam - seuil);
     }
     
     

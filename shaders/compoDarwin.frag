@@ -7,11 +7,6 @@ uniform sampler2D maskTexture;
 
 void main() {
     
-    
-    
-    
-    
-    
     vec4 colorMask = texture2D(maskTexture, textCoord);
     vec4 colorCam = texture2D(camTexture, textCoord).bgra;
     

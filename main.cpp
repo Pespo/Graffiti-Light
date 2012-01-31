@@ -152,9 +152,16 @@ void handleUserEvent(const SDL_Event& event) {
 void handleKeyEvent(const SDL_keysym& keysym, bool down) {
     if (down) {
         switch (keysym.sym) {
-            case SDLK_ESCAPE:
+            case SDLK_ESCAPE :
                 bRunning = false;
-                break;
+                break;                
+            /*case SDLK_R :
+                unsigned char *voidData4B = new unsigned char[4 * w * h];
+                memset(voidData1B, 0, 4 * w * h * sizeof(unsigned char));
+                glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, voidData4B);
+                delete [] voidData4B;
+                break;*/
             default:
                 break;
         }
@@ -238,8 +245,6 @@ void renderOffScreen() {
 	glUniform1i(glGetUniformLocation(shaderMask, "camTexture"), 0);
     glUniform1i(glGetUniformLocation(shaderMask, "pingColorTexture"), 1);
     glUniform1i(glGetUniformLocation(shaderMask, "pingTimeTexture"), 2);
-    glUniform1i(glGetUniformLocation(shaderMask, "pongColorTexture"), 3);
-    glUniform1i(glGetUniformLocation(shaderMask, "pongTimeTexture"), 4);
     
     buildDrawSurface();
 }

@@ -206,6 +206,17 @@ void renderOffScreen() {
     
     // Switch to offScreen fbo
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
+    
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].time);
+    
+    // Switch to destination textures
+    pingpongId = pingpongId == 0 ? 1 : 0;
+    
+    // Attach destination textures to fbo
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, masks[pingpongId].color, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, masks[pingpongId].time, 0);
     
@@ -215,28 +226,20 @@ void renderOffScreen() {
 	glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, camTexture);
     
-    /*glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
-    
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].time);
-    
-    pingpongId = pingpongId == 0 ? 1 : 0;
-    
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
     
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].time);*/
+    glBindTexture(GL_TEXTURE_2D, masks[pingpongId].time);
     
     /* Get the index of var "CamTexture" in the shader
      * Set this var to 0 (The index of the texture)
      */
 	glUniform1i(glGetUniformLocation(shaderMask, "camTexture"), 0);
-    //glUniform1i(glGetUniformLocation(shaderMask, "pingColorTexture"), 1);
-    //glUniform1i(glGetUniformLocation(shaderMask, "pingTimeTexture"), 2);
-    //glUniform1i(glGetUniformLocation(shaderMask, "pongColorTexture"), 3);
-    //glUniform1i(glGetUniformLocation(shaderMask, "pongTimeTexture"), 4);
+    glUniform1i(glGetUniformLocation(shaderMask, "pingColorTexture"), 1);
+    glUniform1i(glGetUniformLocation(shaderMask, "pingTimeTexture"), 2);
+    glUniform1i(glGetUniformLocation(shaderMask, "pongColorTexture"), 3);
+    glUniform1i(glGetUniformLocation(shaderMask, "pongTimeTexture"), 4);
     
     buildDrawSurface();
 }
@@ -248,10 +251,6 @@ void renderOnScreen() {
     
     // Point to the screen again
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    // Binder une autre texture : celle du masque
-    // L'affecter à une variable du shader (maskTexture)
-    // --> Modifier le shader en conséquence
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, camTexture);

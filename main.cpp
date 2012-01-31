@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include <cstring>
+#include <cstring>
+#include <fstream>
 
 void initSDLOpenGL();
 void initFBOs();
@@ -49,7 +52,7 @@ SDL_Surface *pDrawContext;
 
 GLuint fbo;
 struct Mask{
-    GLuint color; 
+    GLuint color;
     GLuint time;
 } masks[2];
 
@@ -230,6 +233,8 @@ void renderOffScreen() {
 }
 
 void renderOnScreen() {
+    
+
     glUseProgram(shaderCompo);
     
     // Point to the screen again
@@ -245,6 +250,33 @@ void renderOnScreen() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
     
+//    //====================
+//    // HACK
+//    //====================
+//    
+//    unsigned char data[640 * 426 * 4];
+//    
+//    for (int h = 0; h < 426; ++h) {
+//        for (int w = 0; w < 640 * 4; w += 4) {
+//            data[h * 640 * 4 + w] = 0;
+//            data[h * 640 * 4 + w + 1] = 0;
+//            data[h * 640 * 4 + w + 2] = 0;
+//            if (h < 200) {
+//                data[h * 640 * 4 + w + 3] = 125;
+//            } else {
+//                data[h * 640 * 4 + w + 3] = 0;
+//            }
+//            
+//            
+//        }
+//    }
+//    //memset(data, 255, 4 * 640 * 426 * sizeof(unsigned char));
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 640, 426, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+//    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, current_frame->width, current_frame->height, 0, GL_RGB, GL_UNSIGNED_BYTE, current_frame->imageData);
+//    //====================
+//    // HACK
+//    //====================
+    
     glUniform1i(glGetUniformLocation(shaderCompo, "camTexture"), 0);
     glUniform1i(glGetUniformLocation(shaderCompo, "maskTexture"), 1);
     
@@ -252,7 +284,6 @@ void renderOnScreen() {
 }
 
 void renderFrame() {
-
     capture_frame = cvQueryFrame(camera);
     cvFlip(capture_frame, current_frame, 1);
     
@@ -376,10 +407,10 @@ void initFBO() {
 void initTextures(const int w, const int h) {
 
     unsigned short *voidData1B = new unsigned short[w * h];
-    memset(voidData1B, 0, w * h * sizeof(unsigned short));
+    memset(voidData1B, 1, w * h * sizeof(unsigned short));
     
-    unsigned short *voidData4B = new unsigned short[4 * w * h];
-    memset(voidData1B, 0, 4 * w * h * sizeof(unsigned short));
+    unsigned char *voidData4B = new unsigned char[4 * w * h];
+    memset(voidData1B, 1, 4 * w * h * sizeof(unsigned char));
     
     /* Two masks for ping ponging
      */
@@ -398,7 +429,7 @@ void initTextures(const int w, const int h) {
         glBindTexture(GL_TEXTURE_2D, masks[i].color);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_SHORT, voidData1B);
+        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, voidData4B);
 
         /* Bind the texture for drawing 
          * Parametering
@@ -407,7 +438,7 @@ void initTextures(const int w, const int h) {
         glBindTexture(GL_TEXTURE_2D, masks[i].time);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData4B);
+        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_SHORT, voidData1B);
     }
     
     delete [] voidData1B;

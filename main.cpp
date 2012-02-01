@@ -91,17 +91,18 @@ void init() {
     screenWidth = videoInfo->current_w - 100;
     screenHeight = videoInfo->current_h - 100;
     
-    //camera = cvCaptureFromCAM(CV_CAP_ANY);
-	camera = cvCaptureFromAVI("src/MVI_9685.MOV");
+    camera = cvCaptureFromCAM(CV_CAP_ANY);
+	//camera = cvCaptureFromAVI("/Users/Tom/Desktop/test.avi");
     
     if (!camera)
         abort();
     
 	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
 	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
+	cvSetCaptureProperty(camera, CV_CAP_PROP_POS_FRAMES, 10);
     
-    cameraWidth = 1920; //cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
-    cameraHeight = 1080; // cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);
+    cameraWidth = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
+    cameraHeight = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);
     
     cout << cameraWidth << " - " << cameraHeight << endl;
     
@@ -152,7 +153,10 @@ void init() {
     /*
      * Flip the IplImages for deinterleaving
      */
-	capture_frame = cvQueryFrame(camera);
+
+    capture_frame = cvQueryFrame(camera);
+    if (!capture_frame)
+        abort();
     current_frame = cvCreateImage(cvSize(capture_frame->width, capture_frame->height), IPL_DEPTH_8U, 3);
     cvFlip(capture_frame, current_frame, 1);	
 

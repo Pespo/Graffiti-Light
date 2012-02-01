@@ -37,6 +37,9 @@ GLuint pingpongId;
 GLuint shaderCompo;
 GLuint shaderMask;
 GLuint quadVBO;
+GLuint seuilVBO;
+
+float seuil[1];
 
 GLuint frameCount;
 uint64_t m_LastStartTime;
@@ -92,7 +95,7 @@ void init() {
     screenHeight = videoInfo->current_h - 100;
     
     camera = cvCaptureFromCAM(CV_CAP_ANY);
-	//camera = cvCaptureFromAVI("/Users/Tom/Desktop/test.avi");
+	//camera = cvCaptureFromAVI("/Users/Tom/Desktop/MVI_9689g.avi");
     
     if (!camera)
         abort();
@@ -191,8 +194,23 @@ void handleKeyEvent(const SDL_keysym& keysym, bool down) {
                 glBindTexture(GL_TEXTURE_2D, masks[pingpongId].color);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, current_frame->width, current_frame->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, voidData4B);
                 delete [] voidData4B;
+                } break;
+            case SDLK_p :
+                if (seuil[0] < 9.9) {
+                    seuil[0] += 0.1;
+                    glBindBuffer(GL_ARRAY_BUFFER, seuilVBO);
+                    glBufferData(GL_ARRAY_BUFFER, sizeof(float), seuil, GL_DYNAMIC_DRAW);
+                }
+                cout << "seuil : " << seuil[0] << endl;
                 break;
-            }
+            case SDLK_m :
+                if (seuil[0] > 0.1) {
+                    seuil[0] -= 0.1;
+                    glBindBuffer(GL_ARRAY_BUFFER, seuilVBO);
+                    glBufferData(GL_ARRAY_BUFFER, sizeof(float), seuil, GL_DYNAMIC_DRAW);
+                }
+                cout << "seuil : " << seuil[0] << endl;
+                break;
             default :
                 break;
         }
@@ -221,15 +239,17 @@ void handleEvent(const SDL_Event& event) {
 void buildDrawSurface() {
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     // Get the index of the attribute vars in shader
-    GLuint posLoc = glGetAttribLocation(shaderCompo, "vertPosition");
-    GLuint texLoc = glGetAttribLocation(shaderCompo, "textPosition");
+    GLuint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*) &program);
+    GLuint posLoc = glGetAttribLocation(program, "vertPosition");
+    GLuint texLoc = glGetAttribLocation(program, "textPosition");
     
     /* THE function ! create pointer between vbo datas and shader
      * 
      */
     glEnableVertexAttribArray(posLoc);
     glEnableVertexAttribArray(texLoc);
-    
+
     // Define vertex position : 2 values in a range of 4, starting at index 0
     glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     // Define texture position : 2 values in a range of 4, starting at index 2
@@ -276,6 +296,16 @@ void renderOffScreen() {
 	glUniform1i(glGetUniformLocation(shaderMask, "camTexture"), 0);
     glUniform1i(glGetUniformLocation(shaderMask, "pingColorTexture"), 1);
     glUniform1i(glGetUniformLocation(shaderMask, "pingTimeTexture"), 2);
+    //glUniform1f(glGetAttribLocation(shaderMask, "seuil"), 1.);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, seuilVBO);
+    // Get the index of the attribute vars in shader
+    GLuint seuilLoc = glGetAttribLocation(shaderMask, "seuilIn");
+        
+    glEnableVertexAttribArray(seuilLoc);
+    
+    // Define vertex position : 2 values in a range of 4, starting at index 0
+    glVertexAttribPointer(seuilLoc, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
     
     buildDrawSurface();
 }
@@ -516,6 +546,21 @@ void initDrawSurface() {
     glGenBuffers(1, &quadVBO);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, 4 * 4 * sizeof(float), quadCoord, GL_STATIC_DRAW);
+    
+    
+    /*
+     * @todo MOVE THIS !
+     */
+        seuil[0] = 10;
+        
+        glGenBuffers(1, &seuilVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, seuilVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float), seuil, GL_DYNAMIC_DRAW);
+    /*
+     * NOTHING TO DO HERE
+     */
+    
+    
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

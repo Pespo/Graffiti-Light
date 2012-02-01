@@ -7,7 +7,7 @@
 #include <cstring>
 #include <fstream>
 
-void initSDLOpenGL();
+void init();
 void initFBOs();
 void resize(GLuint w, GLuint h);
 void handleUserEvent(const SDL_Event& event);
@@ -61,41 +61,22 @@ using namespace std;
 
 int main (int argc, char* argv[]) {
 
-	camera = cvCaptureFromCAM(CV_CAP_ANY);
-	
-    if (!camera)
-        abort();
-	
     pingpongId = 0;
     
-	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
-	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
-	//cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH, 640);
-	//cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT, 426);
-    
-    /*
-     * Flip the IplImages for deinterleaving
-     */
-	capture_frame = cvQueryFrame(camera);
-    current_frame = cvCreateImage(cvSize(capture_frame->width, capture_frame->height), IPL_DEPTH_8U, 3);
-    cvFlip(capture_frame, current_frame, 1);
-
     pDrawContext = NULL;
-    cameraWidth = capture_frame->width;
-    cameraHeight = capture_frame->height;
+    //cameraWidth = capture_frame->width;
+    //cameraHeight = capture_frame->height;
     videoModeFlags = SDL_OPENGL | SDL_RESIZABLE;
     bRunning = true;
-    
-    
     // Initialisation of SDL and creation of OpenGL context
-    initSDLOpenGL();
+    init();
     initHardware(current_frame->width, current_frame->height);
     //cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
     loop();
     return 0;
 }
 
-void initSDLOpenGL() {
+void init() {
     
     int sdlError = SDL_Init(SDL_INIT_EVERYTHING);
     if (sdlError < 0)
@@ -105,17 +86,30 @@ void initSDLOpenGL() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-    screenWidth = videoInfo->current_w;
-    screenHeight = videoInfo->current_h;
-
     
-    if (cameraHeight > screenHeight || cameraWidth > screenWidth) {
+    const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
+    screenWidth = videoInfo->current_w - 50;
+    screenHeight = videoInfo->current_h - 50;
+    
+    camera = cvCaptureFromCAM(CV_CAP_ANY);
+    //camera = cvCaptureFromAVI("/Users/Tom/Desktop/MVI_9685.MOV");
+    
+    if (!camera)
+        abort();
+    
+	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
+	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
+    
+    cameraWidth = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
+    cameraHeight = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);
+    
+    cout << cameraWidth << " - " << cameraHeight << endl;
+    
+    /*if (cameraHeight > screenHeight || cameraWidth > screenWidth) {
         float widthScale = cameraWidth / screenWidth;
         float heightScale = cameraHeight / screenHeight;
         float rapport = cameraHeight / widthScale;
-
+        
         if (rapport < screenHeight) {
             windowWidth = screenWidth;
             windowHeight = rapport;
@@ -126,16 +120,43 @@ void initSDLOpenGL() {
     } else {
         windowWidth = cameraWidth;
         windowHeight = cameraHeight;
+    }*/
+    
+    float camRap = cameraWidth / cameraHeight;
+    float screenRap = scrennWidth / screenHeight;
+    
+    if (camRap > screenRap) {
+        if (cameraWidth < screenWidth) {
+            
+        } else {
+            
+        }
+    } else {
+        if (cameraHeight < screenHeight) {
+            
+        } else {
+            
+        }
     }
     
+    cout << windowWidth << " - " << windowHeight << endl;    
     
+    cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH, windowWidth);
+    cvSetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT, windowHeight);
     
+    /*
+     * Flip the IplImages for deinterleaving
+     */
+	capture_frame = cvQueryFrame(camera);
+    current_frame = cvCreateImage(cvSize(capture_frame->width, capture_frame->height), IPL_DEPTH_8U, 3);
+    cvFlip(capture_frame, current_frame, 1);	
+
     pDrawContext = SDL_SetVideoMode(windowWidth, windowHeight, 0, videoModeFlags);
     
     GLenum glewError = glewInit();
     if (glewError != GLEW_OK)
         cout << "GLEW Error : " << glewGetErrorString(glewError) << endl;
-
+    
     glClearColor(0., 0., 0., 1.);
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);

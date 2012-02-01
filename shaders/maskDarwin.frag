@@ -15,7 +15,7 @@ void main() {
     
     float lumCam = dot(colorCam.rgb, vec3(0.33));
     
-    float seuil = 0.2;
+    float seuil = 1;
         
     if (lumCam >= seuil) {
         gl_FragData[0].r = colorCam.r;

@@ -88,11 +88,11 @@ void init() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     
     const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-    screenWidth = videoInfo->current_w - 50;
-    screenHeight = videoInfo->current_h - 50;
+    screenWidth = videoInfo->current_w - 100;
+    screenHeight = videoInfo->current_h - 100;
     
-    camera = cvCaptureFromCAM(CV_CAP_ANY);
-    //camera = cvCaptureFromAVI("/Users/Tom/Desktop/MVI_9685.MOV");
+    //camera = cvCaptureFromCAM(CV_CAP_ANY);
+	camera = cvCaptureFromAVI("src/MVI_9685.MOV");
     
     if (!camera)
         abort();
@@ -100,8 +100,8 @@ void init() {
 	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
 	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
     
-    cameraWidth = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
-    cameraHeight = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);
+    cameraWidth = 1920; //cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
+    cameraHeight = 1080; // cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);
     
     cout << cameraWidth << " - " << cameraHeight << endl;
     
@@ -122,20 +122,25 @@ void init() {
         windowHeight = cameraHeight;
     }*/
     
-    float camRap = cameraWidth / cameraHeight;
-    float screenRap = scrennWidth / screenHeight;
+       
+    float camRap = float(cameraWidth) / float(cameraHeight);
+    float screenRap = float(screenWidth) / float(screenHeight);
     
     if (camRap > screenRap) {
         if (cameraWidth < screenWidth) {
-            
+            windowWidth = cameraWidth;
+			windowHeight = cameraHeight;
         } else {
-            
+            windowWidth = screenWidth;
+			windowHeight = windowWidth * cameraHeight / cameraWidth;
         }
     } else {
         if (cameraHeight < screenHeight) {
-            
+            windowWidth = cameraWidth;
+			windowHeight = cameraHeight;
         } else {
-            
+            windowWidth = screenHeight * camRap;
+			windowHeight = screenHeight;
         }
     }
     
@@ -516,9 +521,11 @@ void initShaders() {
     shaderCompo = createProgram("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
     shaderMask = createProgram("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
 #else 
-    shaderCompo = createProgram("src/shaders/compo.vert", "src/shaders/compo.frag");
-    shaderMask = createProgram("src/shaders/mask.vert", "src/shaders/mask.frag");
-#endif
+	shaderCompo = createProgram("src/shaders/compoDarwin.vert", "src/shaders/compoDarwin.frag");
+    shaderMask = createProgram("src/shaders/maskDarwin.vert", "src/shaders/maskDarwin.frag");
+    //shaderCompo = createProgram("src/shaders/compo.vert", "src/shaders/compo.frag");
+    //shaderMask = createProgram("src/shaders/mask.vert", "src/shaders/mask.frag");
+#endif*/
 }
 
 void initHardware(const int w, const int h) {

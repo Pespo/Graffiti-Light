@@ -95,14 +95,13 @@ void init() {
     screenHeight = videoInfo->current_h - 100;
     
     camera = cvCaptureFromCAM(CV_CAP_ANY);
-	//camera = cvCaptureFromAVI("/Users/Tom/Desktop/MVI_9689g.avi");
+	//camera = cvCaptureFromAVI("/Users/Tom/Desktop/MVI_9697g.avi");
     
     if (!camera)
         abort();
     
 	cvSetCaptureProperty(camera, CV_CAP_PROP_SATURATION, 0);
-	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 100);
-	cvSetCaptureProperty(camera, CV_CAP_PROP_POS_FRAMES, 10);
+	cvSetCaptureProperty(camera, CV_CAP_PROP_FPS, 1);
     
     cameraWidth = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_WIDTH);
     cameraHeight = cvGetCaptureProperty(camera, CV_CAP_PROP_FRAME_HEIGHT);

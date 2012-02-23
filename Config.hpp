@@ -7,11 +7,11 @@
 // =     Define platform macros     =
 // ==================================
 #if defined _WIN64 || defined _WIN32
-    #define MUXOGL_WINDOWS
+    #define LM_WINDOWS
 #elif __APPLE__
-    #define MUXOGL_APPLE
+    #define LM_APPLE
 #elif __linux
-    #define MUXOGL_LINUX
+    #define LM_LINUX
 #endif
 
 // ============================
@@ -19,14 +19,14 @@
 // ============================
 #include <opencv2/opencv.hpp>
     
-#ifdef MUXOGL_WINDOWS
+#ifdef LM_WINDOWS
     #include <GL/glew.h>
     #include <GL/GL.h>
     #include <GL/GLU.h>
     #include <sdl-1.3/SDL.h>
 #endif
     
-#ifdef MUXOGL_APPLE
+#ifdef LM_APPLE
     #include <SDL/SDL.h>
     #include <SDL/SDL_main.h>
     #include "glew/glew.h"

@@ -12,7 +12,7 @@ Program::Program(const string& vertexPath, const string& fragmentPath) {
 	GLuint   vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const char*   vertexSource = loadFromFile(vertexPath);
+	const char* vertexSource = loadFromFile(vertexPath);
     const char* fragmentSource = loadFromFile(fragmentPath);
 
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
@@ -77,6 +77,7 @@ const char* Program::loadFromFile(const string& fn) const {
 			fclose(fp);
 		}
 	}
+	cout << "file size : "<< count << endl;
 	return content;
 }
 

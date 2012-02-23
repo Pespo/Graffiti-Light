@@ -68,8 +68,15 @@ void Application::init() {
     // =     Init shaders     =
     // ========================
     OpenGL::printErrors();
-    m_programs[Program::MASKING_STANDARD] = Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
-    m_programs[Program::RENDER_STANDARD] = Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
+	#ifdef LM_WINDOWS
+		m_programs[Program::MASKING_STANDARD] = Program("src/shaders/maskDarwin.vert", "src/shaders/maskDarwin.frag");
+		m_programs[Program::RENDER_STANDARD] = Program("src/shaders/compoDarwin.vert", "src/shaders/compoDarwin.frag");
+	#endif
+
+	#ifdef LM_APPLE
+		m_programs[Program::MASKING_STANDARD] = Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
+		m_programs[Program::RENDER_STANDARD] = Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
+	#endif
 }
 
 void Application::run() {

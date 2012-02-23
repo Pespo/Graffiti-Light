@@ -7,8 +7,8 @@
 class Program {
 public:
     enum Type {
-        MASKING_STANDARD,
-        RENDER_STANDARD,
+        MASKING_STANDARD = 0,
+        RENDER_STANDARD = 1,
         MAX_TYPE
     };
 
@@ -28,6 +28,7 @@ public:
     void setTexture(const std::string& name, const size_t& value) const;
     void setFloat(const std::string& name, const float& value) const;
     static const Program* getCurrent();
+    GLuint getId() { return m_glId; }
 };
 
 #endif // __Program_H__

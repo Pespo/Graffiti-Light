@@ -8,13 +8,13 @@ Program* Program::s_pCurrentProgram;
 
 Program::Program(const string& vertexPath, const string& fragmentPath) {
     cout << "Program : new" << endl;
-    OpenGL::printErrors();
+
 	GLuint   vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	const char* vertexSource = loadFromFile(vertexPath);
     const char* fragmentSource = loadFromFile(fragmentPath);
-
+    
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 
@@ -77,7 +77,6 @@ const char* Program::loadFromFile(const string& fn) const {
 			fclose(fp);
 		}
 	}
-	cout << "file size : "<< count << endl;
 	return content;
 }
 
@@ -87,6 +86,7 @@ Program::~Program() {
 }
 
 void Program::active() {
+    cout << "Program : active " << m_glId << endl;
     s_pCurrentProgram = this;
     glUseProgram(m_glId);
 }

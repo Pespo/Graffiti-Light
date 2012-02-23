@@ -37,8 +37,8 @@ int main (int argc, char* argv[]) {
     // =     Start Application     =
     // =============================
     Application app(GLContext);
-    app.init();            
-    //app.run();
+    app.init();
+    app.run();
     
     //delete GLContext;
     return 0;

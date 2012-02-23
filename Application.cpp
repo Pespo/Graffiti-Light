@@ -67,30 +67,32 @@ void Application::init() {
     // ========================
     // =     Init shaders     =
     // ========================
-    OpenGL::printErrors();
+
 	#ifdef LM_WINDOWS
 		m_programs[Program::MASKING_STANDARD] = Program("src/shaders/maskDarwin.vert", "src/shaders/maskDarwin.frag");
 		m_programs[Program::RENDER_STANDARD] = Program("src/shaders/compoDarwin.vert", "src/shaders/compoDarwin.frag");
 	#endif
-
+    
 	#ifdef LM_APPLE
-		m_programs[Program::MASKING_STANDARD] = Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
-		m_programs[Program::RENDER_STANDARD] = Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
-	#endif
+        m_programs[Program::MASKING_STANDARD] = Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
+        m_programs[Program::RENDER_STANDARD] = Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
+    #endif
 }
 
 void Application::run() {
     cout << "Application : run" << endl;
-    //SDL_Event event;
+    SDL_Event event;
     while (m_bRunning) {
-        //render();
-        //while (SDL_PollEvent(&event))
-            //handleEvent(event);
+        render();
+        while (SDL_PollEvent(&event))
+            handleEvent(event);
         OpenGL::printErrors();
     }
 }
 
 void Application::render() {
+    cout <<"Application : render" << endl;
+    
     m_camera.capture();
     
     glClear(GL_COLOR_BUFFER_BIT);
@@ -98,6 +100,7 @@ void Application::render() {
     // =============================
     // =     Render off screen     =
     // =============================
+
     m_programs[Program::MASKING_STANDARD].active();
     m_fbo.bind();
 

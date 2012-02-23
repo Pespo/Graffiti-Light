@@ -19,7 +19,11 @@ class Application {
     PingPong m_masks;
     float m_threshold;
     bool m_bRunning;
-    std::map<int, Program> m_programs;
+    std::map<Program::Type, Program> m_programs;
+
+    
+    Program m_programsMasking;
+    Program m_programsRender;
     
     void handleKeyEvent(const SDL_keysym& keysym, bool down);
     void handleEvent(const SDL_Event& event);

@@ -1,7 +1,7 @@
 #version 120
 
 varying vec2 textCoord;
-varying float seuil;
+//varying float seuil;
 
 uniform sampler2D camTexture;
 
@@ -16,7 +16,7 @@ void main() {
     
     float lumCam = dot(colorCam.rgb, vec3(0.33));
     
-    //float seuil = 0.1;
+    float seuil = 0.8;
         
     if (lumCam >= seuil) {
         gl_FragData[0].r = colorCam.r;
@@ -31,7 +31,6 @@ void main() {
     if (colorPing.a > gl_FragData[0].a) {
         gl_FragData[0] = colorPing;
     }
-    
     
     gl_FragData[1] = vec4(0.);
 }

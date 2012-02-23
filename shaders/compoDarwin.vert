@@ -2,7 +2,6 @@
 
 attribute vec2 vertPosition;
 attribute vec2 textPosition;
-attribute float seuilIn;
 
 varying vec2 textCoord;
 

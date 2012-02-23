@@ -12,7 +12,7 @@ endif
 
 all: $(EXE)
 
-$(EXE): main.o glew.o textfile.o
+$(EXE): Program.o main.o glew.o FBO.o Texture.o VBO.o Camera.o Scene.o Application.o OpenGL.o Mask.o
 	@echo Linking $(EXE) with $^
 	@$(CC) $(LDFLAGS) -o $(EXE) $^
 
@@ -24,12 +24,14 @@ glew.o : glew/glew.c glew/glew.h
 	@echo compiling $@
 	@$(CC) $(CGFLAGS) $< -o $@
 
-textfile.o : textfile.cpp textfile.h
+FBO.o : FBO.cpp
 	@echo compiling $@
 	@$(CC) $(CGFLAGS) $< -o $@
-
-.PHONY : clean
-
+    
+%.o : %.cpp %.hpp
+	@echo compiling $@
+	@$(CC) $(CGFLAGS) $< -o $@
+    
 clean :
 	@echo Cleaning $(EXE)
 	@rm -rf *.o $(EXE)

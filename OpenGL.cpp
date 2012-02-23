@@ -5,9 +5,11 @@ using namespace std;
 
 void OpenGL::printErrors() {
     GLenum error = glGetError();
-    
+
+    cout << "IS THERE GL ERROR ?";
+
     while (error != GL_NO_ERROR) {
-        cout << "!! GL Error : ";
+        cout << "\tYES\t=>\t";
         if (error == GL_INVALID_ENUM)
             cout << "GL_INVALID_ENUM" << endl;
         if (error == GL_INVALID_VALUE)
@@ -19,8 +21,8 @@ void OpenGL::printErrors() {
         
         error = glGetError();
         
-        cout << endl;
     }
+    cout << endl;
 }
 
 void OpenGL::clearColor() {

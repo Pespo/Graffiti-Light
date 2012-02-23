@@ -15,7 +15,7 @@ public:
     void bind() const;
     void bindOn(const GLenum& active = GL_TEXTURE0) const;
     static void unbind();
-    static void attachData(const GLvoid* data, const GLsizei& w, const GLsizei& h, const GLenum& dataFormat, const GLenum& dataType, const GLint& internFormat = GL_RGB);
+    static void attachData(const GLvoid* data, const GLsizei& w, const GLsizei& h, const GLenum& dataColorFormat, const GLenum& dataType, const GLint& internColorFormat = GL_RGB);
     const GLuint& getId() const;
 };
 

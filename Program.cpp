@@ -1,4 +1,5 @@
 #include "Program.hpp"
+#include "OpenGL.hpp"
 #include <iostream>
 
 using namespace std;
@@ -6,27 +7,22 @@ using namespace std;
 Program* Program::s_pCurrentProgram;
 
 Program::Program(const string& vertexPath, const string& fragmentPath) {
-    cout << "new Program" << endl;
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER),
-         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    cout << "Program : shaders created" << endl;
+    cout << "Program : new" << endl;
+    OpenGL::printErrors();
+	GLuint   vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	const char*   vertexSource = loadFromFile(vertexPath);
     const char* fragmentSource = loadFromFile(fragmentPath);
-    cout << "Program : shaders loaded" << endl;
-    
+
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    cout << "Program : vertex shaders source ok" << endl;
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    cout << "Program : vertex shaders source ok" << endl;
-    
+
 	delete vertexSource;
     delete fragmentSource;
-    cout << "Program : delete shaders source ok" << endl;
 
     GLuint shaders[2] = {vertexShader, fragmentShader};
-    
+
     GLint compiled;
     for (int i = 0; i < 2; ++i) {
         glCompileShader(shaders[i]);
@@ -41,12 +37,11 @@ Program::Program(const string& vertexPath, const string& fragmentPath) {
             delete[] buffer;
         }
     }
-    
+
     m_glId = glCreateProgram();
 	glAttachShader(m_glId, fragmentShader);
 	glAttachShader(m_glId, vertexShader);
 	glLinkProgram(m_glId);
-    cout << "Program : linked" << endl;
     
     GLint linked;
     glGetProgramiv(m_glId, GL_LINK_STATUS, &linked);
@@ -67,13 +62,9 @@ const char* Program::loadFromFile(const string& fn) const {
 	int count = 0;
     
 	if (!fn.empty()) {
-        cout << "Program : open file" << endl;
-
 		fp = fopen(fn.c_str(), "rt");
         
 		if (fp != NULL) {
-            cout << "Program : file unreachable" << endl;
-
             fseek(fp, 0, SEEK_END);
             count = ftell(fp);
             rewind(fp);
@@ -86,7 +77,6 @@ const char* Program::loadFromFile(const string& fn) const {
 			fclose(fp);
 		}
 	}
-    cout << "Program : size of file = " << count << endl;
 	return content;
 }
 

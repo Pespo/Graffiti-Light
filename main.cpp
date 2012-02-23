@@ -36,10 +36,9 @@ int main (int argc, char* argv[]) {
     // =============================
     // =     Start Application     =
     // =============================
-    cout << "Start software" << endl;
     Application app(GLContext);
-    app.init();
-    cout << "Stop software" << endl;
+    app.init();            
+    //app.run();
     
     //delete GLContext;
     return 0;

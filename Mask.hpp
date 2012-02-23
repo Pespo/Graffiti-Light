@@ -8,8 +8,8 @@
 using namespace std;
 
 struct Mask {
-    Mask(int test) : color(GL_LINEAR, GL_LINEAR), timer(GL_NEAREST, GL_NEAREST) { cout << "new Mask" << endl; };
-    Mask() { cout << "new Mask" << endl; };
+    Mask(int test) : color(GL_LINEAR, GL_LINEAR), timer(GL_NEAREST, GL_NEAREST) { cout << "Mask : new" << endl; };
+    Mask() { cout << "Mask : new " << endl; };
     Mask(Mask& copy) : color(copy.color), timer(copy.timer) {};
     ~Mask() {};
     Texture color;
@@ -17,7 +17,7 @@ struct Mask {
 };
 
 struct PingPong {
-    PingPong() : in(2), out(2) { cout << "new PingPong" << endl; };
+    PingPong() : in(2), out(2) { cout << "PingPong : new" << endl; };
     Mask in;
     Mask out;
     void swap() {        

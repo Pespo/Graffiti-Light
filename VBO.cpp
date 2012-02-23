@@ -4,7 +4,7 @@
 using namespace std;
 
 VBO::VBO() : m_widthData(0), m_HeightData(0) {
-    cout << "new VBO" << endl;
+    cout << "VBO : new" << endl;
     glGenBuffers(1, &m_glId);
 }
 

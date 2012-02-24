@@ -12,7 +12,7 @@ Scene::Scene() :
                                1., -1., 1., 1.,
                                1.,  1., 1., 0.};
         
-    m_drawBuffer = VBO(drawCoord, 4, 4);
+    m_drawBuffer = new VBO(drawCoord, 4, 4);
 }
 
 
@@ -25,7 +25,7 @@ Scene::Scene(SDL_Surface* gl) :
                                1, -1, 1, 1,
                                1,  1, 1, 0};
     
-    m_drawBuffer = VBO(drawCoord, 4, 4);
+    m_drawBuffer = new VBO(drawCoord, 4, 4);
 }
 
 Scene::~Scene() {
@@ -33,8 +33,7 @@ Scene::~Scene() {
 }
 
 void Scene::render() const {
-    cout << "1" << endl;
-    m_drawBuffer.bind();
+    m_drawBuffer->bind();
     
 /*    // =================
     // =     hacks     =
@@ -65,15 +64,12 @@ void Scene::render() const {
     
     
     
-    m_drawBuffer.attribPointer("vertPosition", 2, 0);
-    m_drawBuffer.attribPointer("textPosition", 2, 2);
-    cout << "2" << endl;
+    m_drawBuffer->attribPointer("vertPosition", 2, 0);
+    m_drawBuffer->attribPointer("textPosition", 2, 2);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    cout << "3" << endl;
 
-    m_drawBuffer.unbind();
-    cout << "4" << endl;
+    m_drawBuffer->unbind();
 }
 
 

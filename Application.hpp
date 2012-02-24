@@ -15,7 +15,7 @@ class Application {
     
     /*const*/ Scene m_scene;
     Camera m_camera;
-    FBO m_fbo;
+    FBO* m_fbo;
     PingPong m_masks;
     float m_threshold;
     bool m_bRunning;

@@ -6,10 +6,10 @@ using namespace std;
 void OpenGL::printErrors() {
     GLenum error = glGetError();
 
-    cout << "IS THERE GL ERROR ?";
+    cout << "?? IS THERE GL ERROR";
 
     while (error != GL_NO_ERROR) {
-        cout << "\tYES\t=>\t";
+        cout << "\t=>\t" << error << "\t=>\t";
         if (error == GL_INVALID_ENUM)
             cout << "GL_INVALID_ENUM" << endl;
         if (error == GL_INVALID_VALUE)
@@ -18,9 +18,10 @@ void OpenGL::printErrors() {
             cout << "GL_INVALID_OPERATION" << endl;
         if (error == GL_OUT_OF_MEMORY)
             cout << "GL_OUT_OF_MEMORY" << endl;
+        if (error == GL_INVALID_FRAMEBUFFER_OPERATION)
+            cout << "GL_INVALID_FRAMEBUFFER_OPERATION" << endl;
         
         error = glGetError();
-        
     }
     cout << endl;
 }

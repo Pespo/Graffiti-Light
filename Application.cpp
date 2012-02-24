@@ -23,7 +23,7 @@ void Application::init() {
     // =====================================================
     
     const GLenum fboTargets[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    m_fbo = FBO(2, fboTargets);
+    m_fbo = new FBO(2, fboTargets);
     
     // =======================
     // =     Init mask     =
@@ -34,13 +34,13 @@ void Application::init() {
     unsigned char* void4b = new unsigned char[4 * m_scene.width() * m_scene.height()];
     memset(void4b, 1, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
     
-    m_masks.in.color.bind();
-    m_masks.in.color.attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
-    m_masks.in.color.unbind();
+    m_masks.in->color.bind();
+    m_masks.in->color.attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
+    m_masks.in->color.unbind();
     
-    m_masks.out.color.bind();
-    m_masks.out.color.attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
-    m_masks.out.color.unbind();
+    m_masks.out->color.bind();
+    m_masks.out->color.attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
+    m_masks.out->color.unbind();
     
     delete [] void4b;
     
@@ -48,13 +48,13 @@ void Application::init() {
     unsigned short* void1s = new unsigned short[m_scene.width() * m_scene.height()];
     memset(void1s, 1, m_scene.width() * m_scene.height() * sizeof(unsigned short));
 
-    m_masks.in.timer.bind();
-    m_masks.in.timer.attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
-    m_masks.in.timer.unbind();
+    m_masks.in->timer.bind();
+    m_masks.in->timer.attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
+    m_masks.in->timer.unbind();
 
-    m_masks.out.timer.bind();
-    m_masks.out.timer.attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
-    m_masks.out.timer.unbind();
+    m_masks.out->timer.bind();
+    m_masks.out->timer.attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
+    m_masks.out->timer.unbind();
 
     delete [] void1s;
 
@@ -97,21 +97,26 @@ void Application::render() {
     
     glClear(GL_COLOR_BUFFER_BIT);
     
+    // ===========================
+    // =     Attach elements     =
+    // ===========================
+    
+    m_camera.getTexture().bindOn(GL_TEXTURE0);
+    
+    m_masks.in->color.bindOn(GL_TEXTURE1);
+    m_masks.in->timer.bindOn(GL_TEXTURE2);
+    m_masks.out->color.bindOn(GL_TEXTURE3);
+    m_masks.out->timer.bindOn(GL_TEXTURE4);
+    
     // =============================
     // =     Render off screen     =
     // =============================
 
     m_programs[Program::MASKING_STANDARD]->active();
-    m_fbo.bind();
+    m_fbo->bind();
 
-        m_camera.getTexture().bindOn(GL_TEXTURE0);
-        m_masks.in.color.bindOn(GL_TEXTURE1);
-        m_masks.in.timer.bindOn(GL_TEXTURE2);
-        m_masks.out.color.bindOn(GL_TEXTURE3);
-        m_masks.out.timer.bindOn(GL_TEXTURE4);
-            
-        m_fbo.attachTexture(m_masks.in.color, GL_COLOR_ATTACHMENT0);
-        m_fbo.attachTexture(m_masks.in.timer, GL_COLOR_ATTACHMENT1);
+        m_fbo->attachTexture(m_masks.in->color, GL_COLOR_ATTACHMENT0);
+        m_fbo->attachTexture(m_masks.in->timer, GL_COLOR_ATTACHMENT1);
         
         Program::getCurrent()->setTexture("camTexture", 0);
         Program::getCurrent()->setTexture("pingColorTexture", 1);
@@ -121,24 +126,20 @@ void Application::render() {
 
         m_scene.render();
     
-    m_fbo.unbind();
-    
+    FBO::unbind();
+
     // ============================
     // =     Render on screen     =
     // ============================
-    m_programs[Program::RENDER_STANDARD]->active();
-
-    m_camera.getTexture().bindOn(GL_TEXTURE0);
-    m_masks.out.color.bindOn(GL_TEXTURE1);
-    m_masks.out.timer.bindOn(GL_TEXTURE2);
+/*    m_programs[Program::RENDER_STANDARD]->active();
     
     Program::getCurrent()->setTexture("camTexture", 0);
     Program::getCurrent()->setTexture("maskTesture", 1);
-
+*/
     m_scene.render();
-    
-    m_masks.swap();
 
+    m_masks.swap();
+    
     SDL_GL_SwapBuffers();
 }
 

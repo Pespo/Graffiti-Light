@@ -14,10 +14,10 @@ Program::Program(const string& vertexPath, const string& fragmentPath) {
 
 	const char* vertexSource = loadFromFile(vertexPath);
     const char* fragmentSource = loadFromFile(fragmentPath);
-    
+
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-
+    
 	delete vertexSource;
     delete fragmentSource;
 

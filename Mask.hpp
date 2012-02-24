@@ -8,27 +8,28 @@
 using namespace std;
 
 struct Mask {
-    Mask(int test) : color(GL_LINEAR, GL_LINEAR), timer(GL_NEAREST, GL_NEAREST) { cout << "Mask : new" << endl; };
+    Mask(int sid) : id(sid), color(GL_LINEAR, GL_LINEAR), timer(GL_NEAREST, GL_NEAREST) { cout << "Mask : new " << id << "-" << endl; };
     Mask() { cout << "Mask : new " << endl; };
-    Mask(Mask& copy) : color(copy.color), timer(copy.timer) {};
+    Mask(Mask& copy) : id(copy.id), color(copy.color), timer(copy.timer) {};
     ~Mask() {};
+    int id;
     Texture color;
     Texture timer;
 };
 
 struct PingPong {
-    PingPong() : in(2), out(2) { cout << "PingPong : new" << endl; };
-    Mask in;
-    Mask out;
+    PingPong() { cout << "PingPong : new" << endl; in = new Mask(1); out = new Mask(2); };
+    Mask* in;
+    Mask* out;
     void swap() {
         cout << "PingPong : swap" << endl;
-        cout << "PingPong : in = " << &in << endl;
-        cout << "PingPong : out = " << &out << endl;
-        Mask tmp = in;
-        in = out;
-        out = tmp;
-        cout << "PingPong : in = " << &in << endl;
-        cout << "PingPong : out = " << &out << endl;
+        cout << "PingPong : in = " << in->id << endl;
+        cout << "PingPong : out = " << out->id << endl;
+        Mask temp = *in;
+        *in = *out;
+        *out = temp;
+        cout << "PingPong : in = " << in->id << endl;
+        cout << "PingPong : out = " << out->id << endl;
     }
 };
 

@@ -20,10 +20,15 @@ struct PingPong {
     PingPong() : in(2), out(2) { cout << "PingPong : new" << endl; };
     Mask in;
     Mask out;
-    void swap() {        
+    void swap() {
+        cout << "PingPong : swap" << endl;
+        cout << "PingPong : in = " << &in << endl;
+        cout << "PingPong : out = " << &out << endl;
         Mask tmp = in;
         in = out;
         out = tmp;
+        cout << "PingPong : in = " << &in << endl;
+        cout << "PingPong : out = " << &out << endl;
     }
 };
 

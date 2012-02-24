@@ -69,13 +69,13 @@ void Application::init() {
     // ========================
 
 	#ifdef LM_WINDOWS
-		m_programs[Program::MASKING_STANDARD] = Program("src/shaders/maskDarwin.vert", "src/shaders/maskDarwin.frag");
-		m_programs[Program::RENDER_STANDARD] = Program("src/shaders/compoDarwin.vert", "src/shaders/compoDarwin.frag");
+		m_programs[Program::MASKING_STANDARD] = new Program("src/shaders/maskDarwin.vert", "src/shaders/maskDarwin.frag");
+		m_programs[Program::RENDER_STANDARD] = new Program("src/shaders/compoDarwin.vert", "src/shaders/compoDarwin.frag");
 	#endif
     
 	#ifdef LM_APPLE
-        m_programs[Program::MASKING_STANDARD] = Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
-        m_programs[Program::RENDER_STANDARD] = Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
+        m_programs[Program::MASKING_STANDARD] = new Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
+        m_programs[Program::RENDER_STANDARD] = new Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
     #endif
 }
 
@@ -101,23 +101,23 @@ void Application::render() {
     // =     Render off screen     =
     // =============================
 
-    m_programs[Program::MASKING_STANDARD].active();
+    m_programs[Program::MASKING_STANDARD]->active();
     m_fbo.bind();
 
-        m_camera.getTexture().bindOn(0);
-        m_masks.in.color.bindOn(1);
-        m_masks.in.timer.bindOn(2);
-        m_masks.out.color.bindOn(3);
-        m_masks.out.timer.bindOn(4);
+        m_camera.getTexture().bindOn(GL_TEXTURE0);
+        m_masks.in.color.bindOn(GL_TEXTURE1);
+        m_masks.in.timer.bindOn(GL_TEXTURE2);
+        m_masks.out.color.bindOn(GL_TEXTURE3);
+        m_masks.out.timer.bindOn(GL_TEXTURE4);
             
         m_fbo.attachTexture(m_masks.in.color, GL_COLOR_ATTACHMENT0);
         m_fbo.attachTexture(m_masks.in.timer, GL_COLOR_ATTACHMENT1);
         
-        m_programs[Program::MASKING_STANDARD].getCurrent()->setTexture("camTexture", 0);
-        m_programs[Program::MASKING_STANDARD].getCurrent()->setTexture("pingColorTexture", 1);
-        m_programs[Program::MASKING_STANDARD].getCurrent()->setTexture("pingTimeTexture", 2);
+        Program::getCurrent()->setTexture("camTexture", 0);
+        Program::getCurrent()->setTexture("pingColorTexture", 1);
+        Program::getCurrent()->setTexture("pingTimeTexture", 2);
         
-        m_programs[Program::MASKING_STANDARD].getCurrent()->setFloat("seuilIn", m_threshold);
+        Program::getCurrent()->setFloat("seuilIn", m_threshold);
 
         m_scene.render();
     
@@ -126,19 +126,19 @@ void Application::render() {
     // ============================
     // =     Render on screen     =
     // ============================
-    m_programs[Program::RENDER_STANDARD].active();
+    m_programs[Program::RENDER_STANDARD]->active();
 
-    m_camera.getTexture().bindOn(0);
-    m_masks.out.color.bindOn(1);
-    //m_masks.out.timer.bindOn(2);
+    m_camera.getTexture().bindOn(GL_TEXTURE0);
+    m_masks.out.color.bindOn(GL_TEXTURE1);
+    m_masks.out.timer.bindOn(GL_TEXTURE2);
     
-    m_programs[Program::MASKING_STANDARD].getCurrent()->setTexture("camTexture", 0);
-    m_programs[Program::MASKING_STANDARD].getCurrent()->setTexture("maskTesture", 1);
+    Program::getCurrent()->setTexture("camTexture", 0);
+    Program::getCurrent()->setTexture("maskTesture", 1);
 
     m_scene.render();
     
     m_masks.swap();
-    
+
     SDL_GL_SwapBuffers();
 }
 

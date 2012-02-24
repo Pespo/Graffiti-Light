@@ -8,7 +8,7 @@ class Scene {
     SDL_Surface* m_pContext;
     size_t m_width;
     size_t m_height;
-    VBO m_drawSurface;
+    VBO m_drawBuffer;
     
 public:
     Scene(SDL_Surface* GLContext);

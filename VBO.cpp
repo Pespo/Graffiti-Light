@@ -4,12 +4,12 @@
 using namespace std;
 
 VBO::VBO() : m_widthData(0), m_HeightData(0) {
-    cout << "VBO : new" << endl;
     glGenBuffers(1, &m_glId);
 }
 
 VBO::VBO(const float* data, const size_t& w, const size_t& h, const GLenum& mode) :
     m_widthData(w), m_HeightData(h) { 
+    cout << "VBO : new" << endl;
     glGenBuffers(1, &m_glId);
     bind();
     glBufferData(GL_ARRAY_BUFFER, w * h * sizeof(float), data, mode);

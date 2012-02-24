@@ -87,6 +87,8 @@ Program::~Program() {
 
 void Program::active() {
     cout << "Program : active " << m_glId << endl;
+    if (!glIsProgram(m_glId))
+        cout << "Cannot active " << m_glId << ". It's not a program" << endl;
     s_pCurrentProgram = this;
     glUseProgram(m_glId);
 }

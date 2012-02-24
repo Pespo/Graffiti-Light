@@ -19,7 +19,7 @@ class Application {
     PingPong m_masks;
     float m_threshold;
     bool m_bRunning;
-    std::map<Program::Type, Program> m_programs;
+    std::map<Program::Type, Program*> m_programs;
 
     
     Program m_programsMasking;

@@ -30,7 +30,6 @@ void Application::init() {
     // =======================
 
     // Timer masks
-    
     unsigned char* void4b = new unsigned char[4 * m_scene.width() * m_scene.height()];
     memset(void4b, 1, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
     
@@ -105,8 +104,6 @@ void Application::render() {
     
     m_masks.in->color.bindOn(GL_TEXTURE1);
     m_masks.in->timer.bindOn(GL_TEXTURE2);
-    m_masks.out->color.bindOn(GL_TEXTURE3);
-    m_masks.out->timer.bindOn(GL_TEXTURE4);
     
     // =============================
     // =     Render off screen     =
@@ -115,29 +112,39 @@ void Application::render() {
     m_programs[Program::MASKING_STANDARD]->active();
     m_fbo->bind();
 
-        m_fbo->attachTexture(m_masks.in->color, GL_COLOR_ATTACHMENT0);
-        m_fbo->attachTexture(m_masks.in->timer, GL_COLOR_ATTACHMENT1);
+        m_fbo->attachTexture(m_masks.out->color, GL_COLOR_ATTACHMENT0);
+        m_fbo->attachTexture(m_masks.out->timer, GL_COLOR_ATTACHMENT1);
         
         Program::getCurrent()->setTexture("camTexture", 0);
         Program::getCurrent()->setTexture("pingColorTexture", 1);
         Program::getCurrent()->setTexture("pingTimeTexture", 2);
         
         Program::getCurrent()->setFloat("seuilIn", m_threshold);
-
+     
         m_scene.render();
     
     FBO::unbind();
-
+    
+    cout << "Off rendering : OK" << endl;
+    OpenGL::printErrors();
+    
     // ============================
     // =     Render on screen     =
     // ============================
-/*    m_programs[Program::RENDER_STANDARD]->active();
-    
-    Program::getCurrent()->setTexture("camTexture", 0);
-    Program::getCurrent()->setTexture("maskTesture", 1);
-*/
-    m_scene.render();
+        
+    m_masks.out->color.bindOn(GL_TEXTURE3);
+    m_masks.out->timer.bindOn(GL_TEXTURE4);
 
+    m_programs[Program::RENDER_STANDARD]->active();
+
+    Program::getCurrent()->setTexture("camTexture", 0);
+    Program::getCurrent()->setTexture("maskTexture", 3);
+
+    m_scene.render();
+    
+    cout << "On rendering : OK" << endl;
+    OpenGL::printErrors();
+    
     m_masks.swap();
     
     SDL_GL_SwapBuffers();

@@ -62,8 +62,6 @@ void Scene::render() const {
     // =     hacks     =
     // =================    */
     
-    
-    
     m_drawBuffer->attribPointer("vertPosition", 2, 0);
     m_drawBuffer->attribPointer("textPosition", 2, 2);
 

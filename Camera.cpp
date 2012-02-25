@@ -49,3 +49,7 @@ Texture& Camera::capture() {
 const Texture& Camera::getTexture() const {
     return m_texture;
 }
+
+CvCapture* Camera::getFlux() const {
+    return m_flux;
+}

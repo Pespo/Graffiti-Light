@@ -37,3 +37,7 @@ void VBO::attribPointer(const char* varInShad, const size_t& nValues, const size
 
     glVertexAttribPointer(position, nValues, GL_FLOAT, GL_FALSE, m_widthData * sizeof(float), (GLvoid*)(startValues * sizeof(float)));
 }
+
+const GLuint& VBO::getId() const {
+    return m_glId;
+}

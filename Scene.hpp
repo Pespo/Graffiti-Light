@@ -17,6 +17,7 @@ public:
     void render() const;
     const size_t& width() const;
     const size_t& height() const;
+    VBO* getVBO() const;
 };
 
 #endif // __SCENE_H__

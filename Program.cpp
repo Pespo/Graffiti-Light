@@ -109,3 +109,8 @@ void Program::setFloat(const std::string& name, const float& value) const {
 const Program* Program::getCurrent() {
     return s_pCurrentProgram;
 }
+
+const GLuint& Program::getId() const {
+    return m_glId;
+}
+

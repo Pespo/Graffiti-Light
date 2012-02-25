@@ -1,4 +1,5 @@
 #include "FBO.hpp"
+#include "OpenGL.hpp"
 #include <iostream>
 
 using namespace std;
@@ -56,6 +57,20 @@ void FBO::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FBO::attachTexture(const Texture& tex, const GLenum& color) const {
-    glFramebufferTexture2D(GL_FRAMEBUFFER, color, GL_TEXTURE_2D, tex.getId(), 0);
+void FBO::attachTexture(const Texture* tex, const GLenum& color) const {
+    
+    cout << "-------1---------" << endl;
+    OpenGL::printErrors();
+    cout << "----------------" << endl;
+    if (!glIsTexture(tex->getId()))
+        cout << "Can't attach texture " << tex->getId() << endl;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, color, GL_TEXTURE_2D, tex->getId(), 0);
+    
+    cout << "-------2---------" << endl;
+    OpenGL::printErrors();
+    cout << "----------------" << endl;
+}
+
+const GLuint& FBO::getId() const {
+    return m_glId;
 }

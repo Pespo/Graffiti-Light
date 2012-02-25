@@ -28,7 +28,7 @@ public:
     void setTexture(const std::string& name, const size_t& value) const;
     void setFloat(const std::string& name, const float& value) const;
     static const Program* getCurrent();
-    GLuint getId() { return m_glId; }
+    const GLuint& getId() const;
 };
 
 #endif // __Program_H__

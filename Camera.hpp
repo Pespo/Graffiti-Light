@@ -31,6 +31,7 @@ public:
     double get(const Property propId) const;
     Texture& capture();
     const Texture& getTexture() const;
+    CvCapture* getFlux() const;
 };
 
 #endif // __CAMERA_H__

@@ -17,6 +17,7 @@ public:
     void bind() const;
     static void unbind();
     void attribPointer(const char* varInShad, const size_t& nValues, const size_t& startValues) const;
+    const GLuint& getId() const;
 };
 
 #endif // __VBO_H__

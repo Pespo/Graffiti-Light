@@ -2,3 +2,5 @@
 *.o
 *~
 GLight
+glew/
+res/

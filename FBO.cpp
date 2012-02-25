@@ -22,25 +22,27 @@ FBO::~FBO() {
 }
 
 void FBO::bind() const {
-    cout << "FBO : bind" << endl;
+    if (LM_DEBUG) cout << "FBO : bind" << endl;
     
-    GLenum FBOStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    switch (FBOStatus) {
-        case GL_FRAMEBUFFER_COMPLETE:
-            cout << "GL_FRAMEBUFFER_COMPLETE" << endl;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT" << endl;
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT" << endl;
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-            cout << "GL_FRAMEBUFFER_UNSUPPORTED" << endl;
-            break;
-        default:
-            cout << "GL_FRAMEBUFFER_UNKOWN_ERROR" << endl;
-            break;
+    if (LM_DEBUG) {
+        GLenum FBOStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        switch (FBOStatus) {
+            case GL_FRAMEBUFFER_COMPLETE:
+                cout << "GL_FRAMEBUFFER_COMPLETE" << endl;
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT" << endl;
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT" << endl;
+                break;
+            case GL_FRAMEBUFFER_UNSUPPORTED:
+                cout << "GL_FRAMEBUFFER_UNSUPPORTED" << endl;
+                break;
+            default:
+                cout << "GL_FRAMEBUFFER_UNKOWN_ERROR" << endl;
+                break;
+        }
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, m_glId);
@@ -58,17 +60,7 @@ void FBO::unbind() {
 }
 
 void FBO::attachTexture(const Texture* tex, const GLenum& color) const {
-    
-    cout << "-------1---------" << endl;
-    OpenGL::printErrors();
-    cout << "----------------" << endl;
-    if (!glIsTexture(tex->getId()))
-        cout << "Can't attach texture " << tex->getId() << endl;
     glFramebufferTexture2D(GL_FRAMEBUFFER, color, GL_TEXTURE_2D, tex->getId(), 0);
-    
-    cout << "-------2---------" << endl;
-    OpenGL::printErrors();
-    cout << "----------------" << endl;
 }
 
 const GLuint& FBO::getId() const {

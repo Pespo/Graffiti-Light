@@ -10,7 +10,7 @@ Application::Application(SDL_Surface* GLContext) :
     m_scene(GLContext),
     m_camera(CV_CAP_ANY),
     m_masks(),
-    m_threshold(),
+    m_threshold(1),
     m_bRunning(true) {
     cout << "Application : new" << endl;
 }
@@ -32,7 +32,7 @@ void Application::init() {
     // =     Init mask     =
     // =======================
 
-    // Timer masks
+    // Color masks
     unsigned char* void4b = new unsigned char[4 * m_scene.width() * m_scene.height()];
     memset(void4b, 1, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
     
@@ -46,7 +46,7 @@ void Application::init() {
     
     delete [] void4b;
     
-    // Color masks
+    // Timer masks
     unsigned short* void1s = new unsigned short[m_scene.width() * m_scene.height()];
     memset(void1s, 1, m_scene.width() * m_scene.height() * sizeof(unsigned short));
 
@@ -82,7 +82,7 @@ void Application::init() {
 }
 
 void Application::run() {
-    cout << "Application : run" << endl;
+    if (LM_DEBUG) cout << "Application : run" << endl;
     
     
     SDL_Event event;
@@ -95,7 +95,7 @@ void Application::run() {
 }
 
 void Application::render() {
-    cout <<"Application : render" << endl;
+    if (LM_DEBUG) cout <<"Application : render" << endl;
     
     m_camera.capture();
     
@@ -120,6 +120,7 @@ void Application::render() {
     Program::getCurrent()->setTexture("camTexture", 0);
     Program::getCurrent()->setTexture("pingColorTexture", 1);
     Program::getCurrent()->setTexture("pingTimeTexture", 2);
+    Program::getCurrent()->setFloat("seuil", m_threshold);
     
     m_scene.render();
     
@@ -149,14 +150,34 @@ void Application::handleKeyEvent(const SDL_keysym& keysym, bool down) {
             case SDLK_ESCAPE :
                 m_bRunning = false;
                 break;
-            case SDLK_r :
-                // Reset mask
+            case SDLK_r : {
+                unsigned char* void4b = new unsigned char[4 * m_scene.width() * m_scene.height()];
+                memset(void4b, 1, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
+                
+                m_masks.in->color->bind();
+                m_masks.in->color->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
+                m_masks.in->color->unbind();
+                
+                m_masks.out->color->bind();
+                m_masks.out->color->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
+                m_masks.out->color->unbind();
+                
+                delete [] void4b;
+                cout << "Application : reset mask" << endl;
+                } break;
+            /* Increase threshold */
+            case SDLK_p:
+                m_threshold += 0.1;
+                if (m_threshold > 1)
+                    m_threshold = 1;
+                cout << "Application : increase threshold to " << m_threshold << endl;
                 break;
-            case SDLK_p :
-                // Increase threshold
-                break;
-            case SDLK_m :
-                // Decrease threshold
+            /* Decrease threshold */
+            case SDLK_m:
+                m_threshold -= 0.1;
+                if (m_threshold < 0)
+                    m_threshold = 0;
+                cout << "Application : decrease threshold to " << m_threshold << endl;
                 break;
             default :
                 break;

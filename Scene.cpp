@@ -34,7 +34,7 @@ Scene::~Scene() {
 }
 
 void Scene::render() const {
-    cout << "Scene : render" << endl;
+    if (LM_DEBUG) cout << "Scene : render" << endl;
     m_drawBuffer->bind();
     
     m_drawBuffer->attribPointer("vertPosition", 2, 0);

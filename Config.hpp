@@ -34,4 +34,10 @@
     #include <OpenGL/OpenGL.h>
 #endif
 
+// =================
+// =     Tools     =
+// =================
+
+#define LM_DEBUG 0
+
 #endif // __CONFIG_H__

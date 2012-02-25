@@ -21,14 +21,10 @@ struct PingPong {
     Mask* in;
     Mask* out;
     void swap() {
-        cout << "PingPong : swap" << endl;
-        cout << "PingPong : in = " << " - " << in->color->getId() << " - " << in->timer->getId() << " - " << endl;
-        cout << "PingPong : out = " << " - " << out->color->getId() << " - " << out->timer->getId() << " - " << endl;
+        if (LM_DEBUG) cout << "PingPong : swap" << endl;
         Mask temp = *in;
         *in = *out;
         *out = temp;
-        cout << "PingPong : in = " << " - " << in->color->getId() << " - " << in->timer->getId() << " - " << endl;
-        cout << "PingPong : out = " << " - " << out->color->getId() << " - " << out->timer->getId() << " - " << endl;
     }
 };
 

@@ -20,10 +20,11 @@ int main (int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     
     const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-    size_t screenWidth = 640;//videoInfo->current_w - 100;
-    size_t screenHeight = 480;//videoInfo->current_h - 100;
+    size_t screenWidth = videoInfo->current_w / 2;
+    size_t screenHeight = videoInfo->current_h / 2;
 
     SDL_Surface* GLContext = SDL_SetVideoMode(screenWidth, screenHeight, 0, SDL_OPENGL | SDL_RESIZABLE);
+    glViewport(0, 0, screenWidth, screenHeight);
     
     GLenum glewError = glewInit();
     if (glewError != GLEW_OK)

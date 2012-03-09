@@ -13,7 +13,7 @@ Scene::Scene() :
                                1., -1., 1., 1.,
                                1.,  1., 1., 0.};
         
-    m_drawBuffer = new VBO(drawCoord, 4, 4);
+    m_pDrawBuffer = new VBO(drawCoord, 4, 4);
 }
 
 
@@ -26,7 +26,7 @@ Scene::Scene(SDL_Surface* gl) :
                                1., -1., 1., 1.,
                                1.,  1., 1., 0.};
     
-    m_drawBuffer = new VBO(drawCoord, 4, 4);
+    m_pDrawBuffer = new VBO(drawCoord, 4, 4);
 }
 
 Scene::~Scene() {
@@ -35,14 +35,14 @@ Scene::~Scene() {
 
 void Scene::render() const {
     if (LM_DEBUG) cout << "Scene : render" << endl;
-    m_drawBuffer->bind();
+    m_pDrawBuffer->bind();
     
-    m_drawBuffer->attribPointer("vertPosition", 2, 0);
-    m_drawBuffer->attribPointer("textPosition", 2, 2);
+    m_pDrawBuffer->attribPointer("vertexPos", 2, 0);
+    m_pDrawBuffer->attribPointer("texturePos", 2, 2);
     
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    m_drawBuffer->unbind();
+    m_pDrawBuffer->unbind();
 }
 
 
@@ -55,5 +55,12 @@ const size_t& Scene::height() const {
 }
 
 VBO* Scene::getVBO() const {
-    return m_drawBuffer;
+    return m_pDrawBuffer;
+}
+
+void Scene::resize(const size_t& w, const size_t& h) {
+    m_width = w;
+    m_height = h;
+    m_pContext = SDL_SetVideoMode(m_width, m_height, 0, SDL_OPENGL | SDL_RESIZABLE);
+    glViewport(0, 0, m_width, m_height);
 }

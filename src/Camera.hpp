@@ -15,11 +15,11 @@ public:
 private:
     GLuint m_glId;
     
-    CvCapture* m_flux;
+    CvCapture* m_pFlux;
     Texture m_texture;
     
-    IplImage* m_captureFrame;
-    IplImage* m_currentFrame;
+    IplImage* m_pCaptureFrame;
+    IplImage* m_pCurrentFrame;
     
 public:
     Camera();
@@ -32,6 +32,8 @@ public:
     Texture& capture();
     const Texture& getTexture() const;
     CvCapture* getFlux() const;
+    IplImage* getCurrentFrame();
+    void resize(const size_t& w, const size_t& h);
 };
 
 #endif // __CAMERA_H__

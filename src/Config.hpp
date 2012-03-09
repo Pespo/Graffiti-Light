@@ -29,7 +29,7 @@
 #ifdef LM_APPLE
     #include <SDL/SDL.h>
     #include <SDL/SDL_main.h>
-    #include "glew/glew.h"
+    #include "../glew/glew.h"
     #include <OpenGL/gl.h>
     #include <OpenGL/OpenGL.h>
 #endif

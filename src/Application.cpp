@@ -52,11 +52,11 @@ void Application::init() {
     memset(void1s, 1, m_scene.width() * m_scene.height() * sizeof(unsigned short));
 
     m_masks.pIn->pTimer->bind();
-    m_masks.pIn->pTimer->attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
+    m_masks.pIn->pTimer->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pIn->pTimer->unbind();
 
     m_masks.pOut->pTimer->bind();
-    m_masks.pOut->pTimer->attachData(void1s, m_scene.width(), m_scene.height(), GL_RED, GL_UNSIGNED_SHORT, GL_RED);
+    m_masks.pOut->pTimer->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pOut->pTimer->unbind();
 
     delete [] void1s;

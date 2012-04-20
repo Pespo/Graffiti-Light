@@ -35,7 +35,7 @@ void Application::init() {
     // =======================
     // Color masks
     unsigned char* void4b = new unsigned char[4 * m_scene.width() * m_scene.height()];
-    memset(void4b, 1, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
+    memset(void4b, 0, 4 * m_scene.width() * m_scene.height() * sizeof(unsigned char));
     
     m_masks.pIn->pColor->bind();
     m_masks.pIn->pColor->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
@@ -49,7 +49,7 @@ void Application::init() {
     
     // Timer masks
     unsigned short* void1s = new unsigned short[m_scene.width() * m_scene.height()];
-    memset(void1s, 1, m_scene.width() * m_scene.height() * sizeof(unsigned short));
+    memset(void1s, 0, m_scene.width() * m_scene.height() * sizeof(unsigned short));
 
     m_masks.pIn->pTimer->bind();
     m_masks.pIn->pTimer->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);

@@ -19,35 +19,26 @@ void main() {
     float PI = 3.14159265358979323846264;
     float zero = PI / (threshold - 1);
     
-    float luma = colorCam.r * 0.3 + colorCam.g * 0.59 + colorCam.b * 0.11;
+    // float luma = colorCam.r * 0.3 + colorCam.g * 0.59 + colorCam.b * 0.11;
+    float luma = dot(colorCam.rgb, vec3(0.33));
     
     if (luma >= threshold) {
         gl_FragData[0].r = colorCam.r;
         gl_FragData[0].g = colorCam.g;
         gl_FragData[0].b = colorCam.b;
-
-        // For testing : the more luminance the more black it is.
-//        gl_FragData[0].rgb = vec3(1 - &);
-
-        // ==========================
-        // =     Equation tests     =
-        // Examples with threshold = 0.5
-        // ==========================
         
-        // http://fooplot.com/index.php?q0=(cos(x*(pi/(0.8-1))-(pi/(0.8-1)))/2+0.5)%5e4
-        gl_FragData[0].a = pow((cos(luma * zero - zero) / 2 + 0.5), 4);
+        // gl_FragData[0].a = pow((cos(luma * zero - zero) / 2 + 0.5), 4);
         
-        // http://fooplot.com/index.php?q0=1/(1-0.5)*(x-0.5)%3b
-//        gl_FragData[0].a = 1 / (1 - threshold) * (luma - threshold);
+        gl_FragData[0].a = 1. / (1. - threshold) * (luma - threshold);
     }
     
     if (colorMask.a > gl_FragData[0].a) {
         gl_FragData[0] = colorMask;
+        gl_FragData[1].r = timerMask.r + 0.03;
     }
     
-    gl_FragData[1].r = timerMask.r + 0.01;
-    
     if (gl_FragData[1].r > 0.9) {
-        gl_FragData[0] = vec4(0.5, 0.5, 0.5, 0.8);
+        gl_FragData[0].a = 0.;
+        gl_FragData[1].r = 0;
     }
 }

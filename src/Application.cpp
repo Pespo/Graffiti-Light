@@ -165,6 +165,7 @@ void Application::handleKeyEvent(const SDL_keysym& keysym, bool down) {
                 } break;
             /* Increase threshold */
             case SDLK_p:
+            case SDLK_z:
                 cout << "Application : increase threshold";
                 m_threshold += 0.05;
                 if (m_threshold > 1)
@@ -173,15 +174,12 @@ void Application::handleKeyEvent(const SDL_keysym& keysym, bool down) {
                 break;
             /* Decrease threshold */
             case SDLK_m:
+            case SDLK_s:
                 cout << "Application : decrease threshold";
                 m_threshold -= 0.05;
                 if (m_threshold < 0)
                     m_threshold = 0;
                 cout << " to " << m_threshold << endl;
-                break;
-            /* Active record */
-            case SDLK_s:
-                
                 break;
             default :
                 break;

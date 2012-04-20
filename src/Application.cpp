@@ -69,16 +69,25 @@ void Application::init() {
     // ========================
     // =     Init shaders     =
     // ========================
-
-	#ifdef LM_WINDOWS
-		m_pPrograms[Program::MASKING_STANDARD] = new Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
-		m_pPrograms[Program::RENDER_STANDARD] = new Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
-	#endif
     
-	#ifdef LM_APPLE
-        m_pPrograms[Program::MASKING_STANDARD] = new Program("shaders/maskDarwin.vert", "shaders/maskDarwin.frag");
-        m_pPrograms[Program::RENDER_STANDARD] = new Program("shaders/compoDarwin.vert", "shaders/compoDarwin.frag");
-    #endif
+    
+    
+    
+    
+    char cCurrentPath[FILENAME_MAX];
+    char vertpath[FILENAME_MAX];
+	char fragpath[FILENAME_MAX];
+    
+    GetCurrentDir(cCurrentPath, sizeof(cCurrentPath) / sizeof(char));
+	cCurrentPath[sizeof(cCurrentPath) - 1] = '\0';
+    
+    sprintf(vertpath, "%s/%s", cCurrentPath, "shaders/maskDarwin.vert");
+    sprintf(fragpath, "%s/%s", cCurrentPath, "shaders/maskDarwin.frag");
+    m_pPrograms[Program::MASKING_STANDARD] = new Program(vertpath, fragpath);
+    
+    sprintf(vertpath, "%s/%s", cCurrentPath, "shaders/compoDarwin.vert");
+    sprintf(fragpath, "%s/%s", cCurrentPath, "shaders/compoDarwin.frag");
+    m_pPrograms[Program::RENDER_STANDARD] = new Program(vertpath, fragpath);
 }
 
 void Application::run() {

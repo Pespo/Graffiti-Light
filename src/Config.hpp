@@ -24,6 +24,8 @@
     #include <GL/GL.h>
     #include <GL/GLU.h>
     #include <sdl-1.3/SDL.h>
+    #include <direct.h>
+    #define GetCurrentDir _getcwd
 #endif
     
 #ifdef LM_APPLE
@@ -32,6 +34,8 @@
     #include "../glew/glew.h"
     #include <OpenGL/gl.h>
     #include <OpenGL/OpenGL.h>
+    #include <unistd.h>
+    #define GetCurrentDir getcwd
 #endif
 
 // =================

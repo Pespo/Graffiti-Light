@@ -1,5 +1,5 @@
 #ifndef __VBO_H__
-#define __VPO_H__
+#define __VBO_H__
 
 #include "Config.hpp"
 

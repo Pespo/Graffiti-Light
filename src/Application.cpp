@@ -259,7 +259,6 @@ void Application::printTransferRate() {
    // const double INV_MEGA = 1.0 / (1024 * 1024);
     static Timer timer;
     static int count = 0;
-    static stringstream ss;
     double elapsedTime;
     
     elapsedTime = timer.getElapsedTime();

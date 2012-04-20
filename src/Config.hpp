@@ -18,7 +18,9 @@
 // =     library includes     =
 // ============================
 #include <opencv2/opencv.hpp>
-    
+#include <cstdlib>
+#include <iomanip>
+
 #ifdef LM_WINDOWS
     #include <GL/glew.h>
     #include <GL/GL.h>

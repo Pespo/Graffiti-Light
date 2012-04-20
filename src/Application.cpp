@@ -115,6 +115,8 @@ void Application::render() {
     m_masks.swap();
     
     SDL_GL_SwapBuffers();
+    
+    printTransferRate();
 }
 
 void Application::renderOnScreen() {
@@ -250,5 +252,25 @@ void Application::handleUserEvent(const SDL_Event& event) {
     if (event.user.code == 1/*m_loopTimer*/) {
         render();
         OpenGL::printErrors();
+    }
+}
+
+void Application::printTransferRate() {
+   // const double INV_MEGA = 1.0 / (1024 * 1024);
+    static Timer timer;
+    static int count = 0;
+    static stringstream ss;
+    double elapsedTime;
+    
+    elapsedTime = timer.getElapsedTime();
+    if(elapsedTime < 1.0) {
+        ++count;
+    } else {
+        cout << fixed << setprecision(1);
+//        cout << "Transfer Rate: " << (count / elapsedTime) * DATA_SIZE * INV_MEGA << " MB/s. ;
+        cout << "(" << count / elapsedTime << " FPS)\n";
+        cout << resetiosflags(ios_base::fixed | ios_base::floatfield);
+        count = 0;
+        timer.start();
     }
 }

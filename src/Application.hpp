@@ -18,6 +18,9 @@ class Application {
     FBO* m_fbo;
     PingPong m_masks;
     float m_threshold;
+	float m_time;
+	float m_timeSave;
+	unsigned int m_resetCheck;
     bool m_bRunning;
     std::map<Program::Type, Program*> m_pPrograms;
 

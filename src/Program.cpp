@@ -20,9 +20,9 @@ Program::Program(const string& vertexPath, const string& fragmentPath) {
     
 	delete vertexSource;
     delete fragmentSource;
-
+	
     GLuint shaders[2] = {vertexShader, fragmentShader};
-
+	
     GLint compiled;
     for (int i = 0; i < 2; ++i) {
         glCompileShader(shaders[i]);
@@ -37,7 +37,7 @@ Program::Program(const string& vertexPath, const string& fragmentPath) {
             delete[] buffer;
         }
     }
-
+	
     m_glId = glCreateProgram();
 	glAttachShader(m_glId, fragmentShader);
 	glAttachShader(m_glId, vertexShader);
@@ -77,6 +77,7 @@ const char* Program::loadFromFile(const string& fn) const {
 			fclose(fp);
 		}
 	}
+
 	return content;
 }
 

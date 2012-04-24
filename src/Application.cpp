@@ -30,8 +30,8 @@ void Application::init() {
     // =====================================================
     // =     Init fbo with two targets (color & timer)     =
     // =====================================================
-    const GLenum fboTargets[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, /*GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7/*, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9*/};
-    m_fbo = new FBO(5, fboTargets);
+    const GLenum fboTargets[8] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7/*, GL_COLOR_ATTACHMENT8/*, GL_COLOR_ATTACHMENT9*/};
+    m_fbo = new FBO(8, fboTargets);
     
     // =======================
     // =     Init mask     =
@@ -76,15 +76,15 @@ void Application::init() {
     m_masks.pIn->pColor4->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pIn->pColor4->unbind();
     
-   /* m_masks.pOut->pColor4->bind();
+    m_masks.pOut->pColor4->bind();
     m_masks.pOut->pColor4->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pOut->pColor4->unbind();
 
-	/*m_masks.pIn->pColor5->bind();
+	m_masks.pIn->pColor5->bind();
     m_masks.pIn->pColor5->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pIn->pColor5->unbind();
     
-   /* m_masks.pOut->pColor5->bind();
+    m_masks.pOut->pColor5->bind();
     m_masks.pOut->pColor5->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pOut->pColor5->unbind();
 
@@ -96,7 +96,7 @@ void Application::init() {
     m_masks.pOut->pColor6->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pOut->pColor6->unbind();
 	
-	m_masks.pIn->pColor7->bind();
+	/*m_masks.pIn->pColor7->bind();
     m_masks.pIn->pColor7->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pIn->pColor7->unbind();
     
@@ -118,13 +118,13 @@ void Application::init() {
     m_masks.pOut->pTimer0->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pOut->pTimer0->unbind();
 
-	/*m_masks.pIn->pTimer1->bind();
+	m_masks.pIn->pTimer1->bind();
     m_masks.pIn->pTimer1->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
     m_masks.pIn->pTimer1->unbind();
 
     m_masks.pOut->pTimer1->bind();
     m_masks.pOut->pTimer1->attachData(void4b, m_scene.width(), m_scene.height(), GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA);
-    m_masks.pOut->pTimer1->unbind();*/
+    m_masks.pOut->pTimer1->unbind();
 
  //   delete [] void1s;
 	delete [] void4b;
@@ -145,12 +145,12 @@ void Application::init() {
     GetCurrentDir(cCurrentPath, sizeof(cCurrentPath) / sizeof(char));
 	cCurrentPath[sizeof(cCurrentPath) - 1] = '\0';
 
-    sprintf(vertpath, "%s/%s", cCurrentPath, "shaders/maskDarwin.vert");
-    sprintf(fragpath, "%s/%s", cCurrentPath, "shaders/maskDarwin.frag");
+    sprintf(vertpath, "%s/%s", cCurrentPath, "src/shaders/maskDarwin.vert");
+    sprintf(fragpath, "%s/%s", cCurrentPath, "src/shaders/maskDarwin.frag");
     m_pPrograms[Program::MASKING_STANDARD] = new Program(vertpath, fragpath);
 
-    sprintf(vertpath, "%s/%s", cCurrentPath, "shaders/compoDarwin.vert");
-    sprintf(fragpath, "%s/%s", cCurrentPath, "shaders/compoDarwin.frag");
+    sprintf(vertpath, "%s/%s", cCurrentPath, "src/shaders/compoDarwin.vert");
+    sprintf(fragpath, "%s/%s", cCurrentPath, "src/shaders/compoDarwin.frag");
     m_pPrograms[Program::RENDER_STANDARD] = new Program(vertpath, fragpath);
 }
 
@@ -190,8 +190,8 @@ void Application::renderOnScreen() {
 	m_masks.pOut->pColor1->bindOn(GL_TEXTURE12);
 	m_masks.pOut->pColor2->bindOn(GL_TEXTURE13);
 	m_masks.pOut->pColor3->bindOn(GL_TEXTURE14);
-	//m_masks.pOut->pColor4->bindOn(GL_TEXTURE15);
-	//m_masks.pOut->pColor5->bindOn(GL_TEXTURE16);
+	m_masks.pOut->pColor4->bindOn(GL_TEXTURE15);
+	m_masks.pOut->pColor5->bindOn(GL_TEXTURE16);
 	//m_masks.pOut->pColor6->bindOn(GL_TEXTURE17);
 	//m_masks.pOut->pColor7->bindOn(GL_TEXTURE18);
     
@@ -200,9 +200,9 @@ void Application::renderOnScreen() {
 	Program::getCurrent()->setTexture("textureMask1", 12);
     Program::getCurrent()->setTexture("textureMask2", 13);
 	Program::getCurrent()->setTexture("textureMask3", 14);
-	//Program::getCurrent()->setTexture("textureMask4", 15);
-	//Program::getCurrent()->setTexture("textureMask5", 16);
-   // Program::getCurrent()->setTexture("textureMask6", 17);
+	Program::getCurrent()->setTexture("textureMask4", 15);
+	Program::getCurrent()->setTexture("textureMask5", 16);
+	//Program::getCurrent()->setTexture("textureMask6", 17);
 	//Program::getCurrent()->setTexture("textureMask7", 18);
     m_scene.render();
 }
@@ -218,35 +218,35 @@ void Application::renderOffScreen() {
 	m_masks.pIn->pColor1->bindOn(GL_TEXTURE2);
 	m_masks.pIn->pColor2->bindOn(GL_TEXTURE3);
 	m_masks.pIn->pColor3->bindOn(GL_TEXTURE4);
-	//m_masks.pIn->pColor4->bindOn(GL_TEXTURE5);
-	//m_masks.pIn->pColor5->bindOn(GL_TEXTURE6);
+	m_masks.pIn->pColor4->bindOn(GL_TEXTURE5);
+	m_masks.pIn->pColor5->bindOn(GL_TEXTURE6);
 	//m_masks.pIn->pColor6->bindOn(GL_TEXTURE7);
 	//m_masks.pIn->pColor7->bindOn(GL_TEXTURE8);
-    m_masks.pIn->pTimer0->bindOn(GL_TEXTURE5);
-	m_masks.pIn->pTimer1->bindOn(GL_TEXTURE6);
+    m_masks.pIn->pTimer0->bindOn(GL_TEXTURE7);
+	m_masks.pIn->pTimer1->bindOn(GL_TEXTURE8);
     
     m_fbo->attachTexture(m_masks.pOut->pColor0, GL_COLOR_ATTACHMENT0);
 	m_fbo->attachTexture(m_masks.pOut->pColor1, GL_COLOR_ATTACHMENT1);
 	m_fbo->attachTexture(m_masks.pOut->pColor2, GL_COLOR_ATTACHMENT2);
 	m_fbo->attachTexture(m_masks.pOut->pColor3, GL_COLOR_ATTACHMENT3);
-	//m_fbo->attachTexture(m_masks.pOut->pColor4, GL_COLOR_ATTACHMENT4);
-	//m_fbo->attachTexture(m_masks.pOut->pColor5, GL_COLOR_ATTACHMENT5);
+	m_fbo->attachTexture(m_masks.pOut->pColor4, GL_COLOR_ATTACHMENT4);
+	m_fbo->attachTexture(m_masks.pOut->pColor5, GL_COLOR_ATTACHMENT5);
 	//m_fbo->attachTexture(m_masks.pOut->pColor6, GL_COLOR_ATTACHMENT6);
 	//m_fbo->attachTexture(m_masks.pOut->pColor7, GL_COLOR_ATTACHMENT7);
-    m_fbo->attachTexture(m_masks.pOut->pTimer0, GL_COLOR_ATTACHMENT4);
-	//m_fbo->attachTexture(m_masks.pOut->pTimer1, GL_COLOR_ATTACHMENT5);
+    m_fbo->attachTexture(m_masks.pOut->pTimer0, GL_COLOR_ATTACHMENT6);
+	m_fbo->attachTexture(m_masks.pOut->pTimer1, GL_COLOR_ATTACHMENT7);
     
     Program::getCurrent()->setTexture("textureCam", 0);
     Program::getCurrent()->setTexture("textureMask0", 1);
 	Program::getCurrent()->setTexture("textureMask1", 2);
 	Program::getCurrent()->setTexture("textureMask2", 3);
 	Program::getCurrent()->setTexture("textureMask3", 4);
-	//Program::getCurrent()->setTexture("textureMask4", 5);
-	//Program::getCurrent()->setTexture("textureMask5", 6);
+	Program::getCurrent()->setTexture("textureMask4", 5);
+	Program::getCurrent()->setTexture("textureMask5", 6);
 	//Program::getCurrent()->setTexture("textureMask6", 7);
 	//Program::getCurrent()->setTexture("textureMask7", 8);
-    Program::getCurrent()->setTexture("timingMask0", 5);
-	//Program::getCurrent()->setTexture("timingMask1", 8);
+    Program::getCurrent()->setTexture("timingMask0", 7);
+	Program::getCurrent()->setTexture("timingMask1", 8);
 
     Program::getCurrent()->setFloat("threshold", m_threshold);
 	Program::getCurrent()->setFloat("time", m_time);
@@ -269,7 +269,7 @@ void Application::handleKeyEvent(const SDL_keysym& keysym, bool down) {
             case SDLK_r: {
 				m_timeSave = m_time;
                 m_time = 0;
-				m_resetCheck = 5;
+				m_resetCheck = 7;
                 cout << "Application : reset mask" << endl;
                 } break;
             /* Increase threshold */

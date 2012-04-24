@@ -21,7 +21,7 @@ struct Mask {
 	pTimer0 = new Texture(GL_NEAREST, GL_NEAREST);
 	pTimer1 = new Texture(GL_NEAREST, GL_NEAREST); };
     
-	Mask(Mask& copy) : pColor0(copy.pColor0), pColor1(copy.pColor1), pColor2(copy.pColor2), pColor3(copy.pColor3), pColor4(copy.pColor4), pColor5(copy.pColor5),/* pColor6(copy.pColor6), pColor7(copy.pColor7),*/ pTimer0(copy.pTimer0), pTimer1(copy.pTimer1) {};
+	Mask(Mask& copy) : pColor0(copy.pColor0), pColor1(copy.pColor1), pColor2(copy.pColor2), pColor3(copy.pColor3), pColor4(copy.pColor4), pColor5(copy.pColor5)/*, pColor6(copy.pColor6)/*, pColor7(copy.pColor7)*/, pTimer0(copy.pTimer0), pTimer1(copy.pTimer1) {};
     ~Mask() {};
     
 	Texture* pColor0;
@@ -30,7 +30,7 @@ struct Mask {
 	Texture* pColor3;
 	Texture* pColor4;
 	Texture* pColor5;
-	//Texture* pColor6;
+	Texture* pColor6;
 	//Texture* pColor7;
 	
     Texture* pTimer0;

@@ -12,7 +12,7 @@ endif
 
 all: $(EXE)
 
-$(EXE): bin/main.o bin/Program.o bin/glew.o bin/FBO.o bin/Texture.o bin/VBO.o bin/Camera.o bin/Scene.o bin/Application.o bin/OpenGL.o bin/Mask.o
+$(EXE): bin/main.o bin/Program.o bin/glew.o bin/FBO.o bin/Texture.o bin/VBO.o bin/Camera.o bin/Scene.o bin/Application.o bin/OpenGL.o bin/Mask.o bin/Timer.o
 	@echo Linking $(EXE) with $^
 	@$(CC) $(LDFLAGS) -o $(EXE) $^
 
@@ -21,10 +21,6 @@ bin/main.o : src/main.cpp
 	@$(CC) $(CGFLAGS) $< -o $@
 
 bin/glew.o : glew/glew.c glew/glew.h
-	@echo compiling $@
-	@$(CC) $(CGFLAGS) $< -o $@
-
-bin/FBO.o : src/FBO.cpp
 	@echo compiling $@
 	@$(CC) $(CGFLAGS) $< -o $@
     

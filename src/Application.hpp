@@ -9,6 +9,7 @@
 #include "Mask.hpp"
 #include "OpenGL.hpp"
 #include "Mask.hpp"
+#include "Timer.hpp"
 #include <map>
 
 class Application {
@@ -32,6 +33,7 @@ class Application {
     void handleEvent(const SDL_Event& event);
     void handleUserEvent(const SDL_Event& event);
     void render();
+    void printTransferRate(); 
 public:
     Application(SDL_Surface* GLContext);
     ~Application();

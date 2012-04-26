@@ -1,5 +1,6 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
+#include "Config.hpp"
 
 #ifdef LM_WINDOWS
 #include <windows.h>
